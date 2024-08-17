@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">JetPackComposeAssignments</string>
+    <string name="title_activity_week2_design_assignment">week2_designAssignment</string>
+    <string name="title_activity_design_assignment">DesignAssignment</string>
+    <string name= "movie_name">Küçük Cadı Kiki</string>
+    <string name= "duration">102 dk</string>
+    <string name= "playButtonText">Şimdi İzle</string>
+    <string name= "favouriteButtonText">Favorilere Ekle</string>
+    <string name= "appTopBar_name">Studio Ghibli Filmleri</string>
+</resources>

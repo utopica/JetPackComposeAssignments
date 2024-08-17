@@ -1,3 +1,11 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">JetPackComposeAssignments</string>
+    <string name="title_activity_week2_design_assignment">week2_designAssignment</string>
+    <string name="title_activity_design_assignment">DesignAssignment</string>
+    <string name= "movie_name">"Kiki's Delivery Service"</string>
+    <string name= "director_name" translatable="false">Hayao Miyazaki</string>
+    <string name= "duration">102 min</string>
+    <string name= "playButtonText">Watch Now</string>
+    <string name= "favouriteButtonText">Add Favourite</string>
+    <string name= "appTopBar_name">Studio Ghibli Movies</string>
 </resources>
