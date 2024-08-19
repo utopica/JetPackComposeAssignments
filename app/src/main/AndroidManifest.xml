@@ -13,10 +13,21 @@
         android:theme="@style/Theme.JetPackComposeAssignments"
         tools:targetApi="31">
         <activity
+            android:name=".week3_page_navigation.MainActivity"
+            android:exported="true"
+            android:label="Page Navigation"
+            android:theme="@style/Theme.JetPackComposeAssignments">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".week2designAssignment.DesignAssignment"
             android:exported="true"
-            android:label="Movex"
             android:icon="@mipmap/app_icon"
+            android:label="Movex"
             android:roundIcon="@mipmap/app_icon"
             android:theme="@style/Theme.JetPackComposeAssignments">
             <intent-filter>
