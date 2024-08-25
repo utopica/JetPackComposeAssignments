@@ -9,4 +9,5 @@
     <string name="favouriteButtonText">Add Favourite</string>
     <string name="appTopBar_name">Studio Ghibli Movies</string>
     <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_main_calculator">MainCalculator</string>
 </resources>
