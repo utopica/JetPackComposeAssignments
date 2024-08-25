@@ -3,6 +3,8 @@ package com.example.jetpackcomposeassignments.week4_calculator
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -12,11 +14,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.jetpackcomposeassignments.R
 import com.example.jetpackcomposeassignments.ui.theme.poppinsMedium
+import com.example.jetpackcomposeassignments.week4_calculator.ui.theme.ButtonColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,7 +40,7 @@ fun Anasayfa() {
     )
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text(text = "Calculator") }) }
+        topBar = { CenterAlignedTopAppBar(title = { Text(text = "Calculator") }) }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -135,6 +139,7 @@ fun Anasayfa() {
                                     }
                                 }
                             },
+                            colors = ButtonDefaults.buttonColors(containerColor = ButtonColor, contentColor = Color.Black),
                             modifier = Modifier
                                 .weight(1f)
                                 .aspectRatio(1f)
