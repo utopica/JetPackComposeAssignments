@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -34,15 +35,14 @@ fun Anasayfa() {
     var currentOperation = remember { mutableStateOf<String?>(null) }
     var firstOperand = remember { mutableStateOf(0.0) }
     var result = remember { mutableStateOf<String?>(null) }
-
+    var equationText = remember { mutableStateOf("") }
+    var resultText = remember { mutableStateOf("") }
 
     val buttons = listOf(
-        listOf("AC", "", "", ""),
-        listOf("7", "8", "9", "+"),
-        listOf("4", "5", "6", "-"),
+        listOf("7", "8", "9", "AC"),
+        listOf("4", "5", "6", "+"),
         listOf("1", "2", "3", "Del"),
         listOf("+/-", "0", ",", "=")
-
     )
 
     Scaffold(
@@ -83,49 +83,93 @@ fun Anasayfa() {
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     row.forEach { button ->
-                            Button(
-                                onClick = {
-                                    when (button) {
-                                        "AC" -> {
-                                            displayValue.value = "0"
-                                            result.value = null
-                                            firstOperand.value = 0.0
-                                            currentOperation.value = null
-                                        }
+                        Button(
+                            onClick = {
+                                when (button) {
+                                    "AC" -> {
+                                        displayValue.value = "0"
+                                        result.value = null
+                                        equationText.value = ""
+                                        firstOperand.value = 0.0
+                                        currentOperation.value = null
+                                    }
 
-                                        "Del" -> {
-                                            if (displayValue.value.isNotEmpty()) {
-                                                displayValue.value = displayValue.value.dropLast(1)
-                                            } else {
+                                    "Del" -> {
+                                        if (displayValue.value.isNotEmpty() && displayValue.value != "0") {
+                                            displayValue.value = displayValue.value.dropLast(1)
+                                            if (displayValue.value.isEmpty()) {
                                                 displayValue.value = "0"
                                             }
                                         }
+                                    }
 
-                                        "+" -> {
-                                            firstOperand.value = displayValue.value.toDouble()
-                                            currentOperation.value = "+"
-                                            displayValue.value = "0"
+                                    "+" -> {
+                                        firstOperand.value = displayValue.value.toDouble()
+                                        currentOperation.value = "+"
+                                        displayValue.value = "0"
+                                    }
+
+                                    "=" -> {
+                                        if (currentOperation.value == "+") {
+                                            result.value = (firstOperand.value + displayValue.value.toDouble()).toString()
                                         }
+                                        currentOperation.value = null
+                                    }
 
-                                        "=" -> {
-                                            if (currentOperation.value == "+") {
-                                                result.value =
-                                                    (firstOperand.value + displayValue.value.toDouble()).toString()
-                                            }
-                                            currentOperation.value = null
-                                        }
-
-                                        else -> {
-                                            displayValue.value =
-                                                if (displayValue.value == "0") button else displayValue.value + button
+                                    "+/-" -> {
+                                        displayValue.value = if (displayValue.value.startsWith("-")) {
+                                            displayValue.value.drop(1)
+                                        } else {
+                                            "-${displayValue.value}"
                                         }
                                     }
-                                },
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .aspectRatio(1f)
-                                    .padding(2.dp)
-                            ) {
+
+                                    "," -> {
+                                        if (!displayValue.value.contains(".")) {
+                                            displayValue.value += "."
+                                        }
+                                    }
+
+                                    else -> {
+                                        displayValue.value = if (displayValue.value == "0") button else displayValue.value + button
+                                    }
+                                }
+                            },
+                            modifier = Modifier
+                                .weight(1f)
+                                .aspectRatio(1f)
+                                .padding(2.dp)
+                        ) {
+                            if (button == "+/-") {
+                                Image(
+                                    painter = painterResource(id = R.drawable.plus_minus),
+                                    contentDescription = button
+                                )
+                            } else if (button == "+"){
+                                Image(
+                                    painter = painterResource(id = R.drawable.plus),
+                                    contentDescription = button
+                                )
+                            }
+                            else if (button == "Del"){
+                                Image(
+                                    painter = painterResource(id = R.drawable.delete),
+                                    contentDescription = button
+                                )
+                            }
+                            else if (button == "="){
+                                Image(
+                                    painter = painterResource(id = R.drawable.equal),
+                                    contentDescription = button
+                                )
+                            }
+                            else if (button == "AC"){
+                                Image(
+                                    painter = painterResource(id = R.drawable.eraser),
+                                    contentDescription = button
+                                )
+                            }
+                            else {
                                 Text(text = button, fontSize = 24.sp)
                             }
                         }
@@ -134,3 +178,4 @@ fun Anasayfa() {
             }
         }
     }
+}
