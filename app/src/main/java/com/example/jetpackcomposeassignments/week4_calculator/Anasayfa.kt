@@ -26,12 +26,13 @@ fun Anasayfa() {
     val currentOperation = remember { mutableStateOf<String?>(null) }
     val firstOperand = remember { mutableStateOf<Double?>(null) }
     val result = remember { mutableStateOf<String?>(null) }
+    val isResultDisplayed = remember { mutableStateOf(false) }
 
     val buttons = listOf(
         listOf("7", "8", "9", "AC"),
         listOf("4", "5", "6", "+"),
         listOf("1", "2", "3", "Del"),
-        listOf("+/-", "0", ",", "=")
+        listOf("+/-", "0", ".", "=")
     )
 
     Scaffold(
@@ -80,6 +81,7 @@ fun Anasayfa() {
                                         result.value = null
                                         firstOperand.value = null
                                         currentOperation.value = null
+                                        isResultDisplayed.value = false
                                     }
 
                                     "Del" -> {
@@ -97,12 +99,15 @@ fun Anasayfa() {
                                         firstOperand.value = displayValue.value.toDouble()
                                         currentOperation.value = "+"
                                         displayValue.value = "0"
+                                        isResultDisplayed.value = false
                                     }
 
                                     "=" -> {
                                         if (currentOperation.value != null && firstOperand.value != null) {
                                             calculateResult(firstOperand, displayValue, result, currentOperation)
                                             currentOperation.value = null
+                                            firstOperand.value = null
+                                            isResultDisplayed.value = true
                                         }
                                     }
 
@@ -114,14 +119,19 @@ fun Anasayfa() {
                                         }
                                     }
 
-                                    "," -> {
+                                    "." -> {
                                         if (!displayValue.value.contains(".")) {
                                             displayValue.value += "."
                                         }
                                     }
 
                                     else -> {
-                                        displayValue.value = if (displayValue.value == "0") button else displayValue.value + button
+                                        if (isResultDisplayed.value) {
+                                            displayValue.value = button
+                                            isResultDisplayed.value = false
+                                        } else {
+                                            displayValue.value = if (displayValue.value == "0") button else displayValue.value + button
+                                        }
                                     }
                                 }
                             },
