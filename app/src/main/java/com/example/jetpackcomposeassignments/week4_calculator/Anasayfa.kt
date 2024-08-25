@@ -1,16 +1,8 @@
 package com.example.jetpackcomposeassignments.week4_calculator
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -21,7 +13,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.Role.Companion.Image
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.jetpackcomposeassignments.R
@@ -31,12 +22,10 @@ import com.example.jetpackcomposeassignments.ui.theme.poppinsMedium
 @Composable
 fun Anasayfa() {
 
-    var displayValue = remember { mutableStateOf("0") }
-    var currentOperation = remember { mutableStateOf<String?>(null) }
-    var firstOperand = remember { mutableStateOf(0.0) }
-    var result = remember { mutableStateOf<String?>(null) }
-    var equationText = remember { mutableStateOf("") }
-    var resultText = remember { mutableStateOf("") }
+    val displayValue = remember { mutableStateOf("0") }
+    val currentOperation = remember { mutableStateOf<String?>(null) }
+    val firstOperand = remember { mutableStateOf<Double?>(null) }
+    val result = remember { mutableStateOf<String?>(null) }
 
     val buttons = listOf(
         listOf("7", "8", "9", "AC"),
@@ -63,7 +52,7 @@ fun Anasayfa() {
                 horizontalAlignment = Alignment.End
             ) {
                 Text(
-                    text = "${firstOperand.value} ${currentOperation.value ?: ""} ${if (currentOperation.value != null) displayValue.value else ""}",
+                    text = "${firstOperand.value?.let { "${it} ${currentOperation.value ?: ""} " } ?: ""}${if (currentOperation.value != null) displayValue.value else ""}",
                     fontSize = 24.sp,
                     fontFamily = poppinsMedium,
                     modifier = Modifier.padding(bottom = 8.dp)
@@ -89,36 +78,37 @@ fun Anasayfa() {
                                     "AC" -> {
                                         displayValue.value = "0"
                                         result.value = null
-                                        equationText.value = ""
-                                        firstOperand.value = 0.0
+                                        firstOperand.value = null
                                         currentOperation.value = null
                                     }
 
                                     "Del" -> {
-                                        if (displayValue.value.isNotEmpty() && displayValue.value != "0") {
+                                        if (displayValue.value.length > 1) {
                                             displayValue.value = displayValue.value.dropLast(1)
-                                            if (displayValue.value.isEmpty()) {
-                                                displayValue.value = "0"
-                                            }
+                                        } else {
+                                            displayValue.value = "0"
                                         }
                                     }
 
                                     "+" -> {
+                                        if (currentOperation.value != null && firstOperand.value != null) {
+                                            calculateResult(firstOperand, displayValue, result, currentOperation)
+                                        }
                                         firstOperand.value = displayValue.value.toDouble()
                                         currentOperation.value = "+"
                                         displayValue.value = "0"
                                     }
 
                                     "=" -> {
-                                        if (currentOperation.value == "+") {
-                                            result.value = (firstOperand.value + displayValue.value.toDouble()).toString()
+                                        if (currentOperation.value != null && firstOperand.value != null) {
+                                            calculateResult(firstOperand, displayValue, result, currentOperation)
+                                            currentOperation.value = null
                                         }
-                                        currentOperation.value = null
                                     }
 
                                     "+/-" -> {
                                         displayValue.value = if (displayValue.value.startsWith("-")) {
-                                            displayValue.value.drop(1)
+                                            displayValue.value.removePrefix("-")
                                         } else {
                                             "-${displayValue.value}"
                                         }
@@ -140,37 +130,13 @@ fun Anasayfa() {
                                 .aspectRatio(1f)
                                 .padding(2.dp)
                         ) {
-                            if (button == "+/-") {
-                                Image(
-                                    painter = painterResource(id = R.drawable.plus_minus),
-                                    contentDescription = button
-                                )
-                            } else if (button == "+"){
-                                Image(
-                                    painter = painterResource(id = R.drawable.plus),
-                                    contentDescription = button
-                                )
-                            }
-                            else if (button == "Del"){
-                                Image(
-                                    painter = painterResource(id = R.drawable.delete),
-                                    contentDescription = button
-                                )
-                            }
-                            else if (button == "="){
-                                Image(
-                                    painter = painterResource(id = R.drawable.equal),
-                                    contentDescription = button
-                                )
-                            }
-                            else if (button == "AC"){
-                                Image(
-                                    painter = painterResource(id = R.drawable.eraser),
-                                    contentDescription = button
-                                )
-                            }
-                            else {
-                                Text(text = button, fontSize = 24.sp)
+                            when (button) {
+                                "+/-" -> Image(painter = painterResource(id = R.drawable.plus_minus), contentDescription = button)
+                                "+" -> Image(painter = painterResource(id = R.drawable.plus), contentDescription = button)
+                                "Del" -> Image(painter = painterResource(id = R.drawable.delete), contentDescription = button)
+                                "=" -> Image(painter = painterResource(id = R.drawable.equal), contentDescription = button)
+                                "AC" -> Image(painter = painterResource(id = R.drawable.eraser), contentDescription = button)
+                                else -> Text(text = button, fontSize = 24.sp)
                             }
                         }
                     }
