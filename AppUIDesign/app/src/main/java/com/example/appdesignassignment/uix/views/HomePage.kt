@@ -15,9 +15,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -50,7 +54,6 @@ import com.example.appdesignassignment.data.entity.Pins
 @Composable
 fun HomePage(navController: NavController, darkTheme: Boolean = isSystemInDarkTheme()) {
 
-    val configuration = LocalConfiguration.current
     val backgroundColor = if (darkTheme) Black else White
     val textColor = if (darkTheme) White else Black
 
@@ -81,7 +84,8 @@ fun HomePage(navController: NavController, darkTheme: Boolean = isSystemInDarkTh
 
         bottomBar = {
             NavigationBar(
-                containerColor = backgroundColor
+                containerColor = backgroundColor,
+                modifier = Modifier.padding(0.dp)
             ){
                 NavigationBarItem(
                     selected = true,
@@ -89,47 +93,52 @@ fun HomePage(navController: NavController, darkTheme: Boolean = isSystemInDarkTh
                     icon = { Icon(
                         imageVector = Icons.Default.Home,
                         contentDescription = "Home",
-                        tint = textColor
+                        tint = textColor,
+                        modifier = Modifier.size(40.dp, 40.dp)
 
                     ) })
 
                 NavigationBarItem(
-                    selected = true,
+                    selected = false,
                     onClick = { /*TODO*/ },
                     icon = { Icon(
                         imageVector = Icons.Default.Search,
                         contentDescription = "Search",
-                        tint = textColor
+                        tint = textColor,
+                        modifier = Modifier.size(40.dp, 40.dp)
 
                     ) })
 
                 NavigationBarItem(
-                    selected = true,
+                    selected = false,
                     onClick = { /*TODO*/ },
                     icon = { Icon(
                         imageVector = Icons.Default.Add,
                         contentDescription = "Add",
-                        tint = textColor
+                        tint = textColor,
+                        modifier = Modifier.size(40.dp, 40.dp)
 
                     ) })
 
                 NavigationBarItem(
-                    selected = true,
+                    selected = false,
                     onClick = { /*TODO*/ },
                     icon = { Icon(
                         painter = painterResource(id = R.drawable.message),
                         contentDescription = "Message",
-                        tint = textColor
+                        tint = textColor,
+                        modifier = Modifier.size(40.dp, 40.dp)
 
                     ) })
 
                 NavigationBarItem(
-                    selected = true,
+                    selected = false,
                     onClick = { /*TODO*/ },
                     icon = { Icon(
                         imageVector = Icons.Default.Person,
                         contentDescription = "Profile",
-                        tint = textColor
+                        tint = textColor,
+                        modifier = Modifier.size(40.dp, 40.dp)
 
                     ) })
             }
@@ -161,69 +170,89 @@ fun HomePage(navController: NavController, darkTheme: Boolean = isSystemInDarkTh
             }
 
             // Content Grid
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(5.dp),
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(2.dp)
             ) {
-                items(
-                    count = pinList.count(),
-                    itemContent = {
-                        val pin = pinList[it]
-                        val activity = (LocalContext.current as Activity)
-
-                        Card(
-                            modifier = Modifier.padding(5.dp),
-                            shape = RoundedCornerShape(20.dp)
-                        ) {
-                            Column(
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                // Container for pinUrl image
-                                Box(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(20.dp))
-                                        .background(Color.Transparent)
-                                ) {
-                                    Image(
-                                        bitmap = ImageBitmap.imageResource(
-                                            id = activity.resources.getIdentifier(pin.pinUrl, "drawable", activity.packageName)),
-                                        contentDescription = null,
-                                    )
-                                }
-
-                                // Row for profile picture and action icon
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .background(backgroundColor)
-                                        .padding(4.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Image(
-                                        bitmap = ImageBitmap.imageResource(
-                                            id = activity.resources.getIdentifier(pin.pinProfilePictureUrl, "drawable", activity.packageName)),
-                                        contentDescription = null,
-                                        modifier = Modifier
-                                            .size(40.dp)
-                                            .clip(CircleShape)
-                                    )
-
-                                    Image(
-                                        modifier = Modifier
-                                            .clickable { /* Handle click */ }
-                                            .size(28.dp),
-                                        painter = painterResource(id = R.drawable.threedotblack),
-                                        contentDescription = null,
-                                    )
-                                }
-                            }
-                        }
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(5.dp),
+                    modifier = Modifier
+                        .fillMaxWidth(0.5f)
+                        .wrapContentHeight()
+                ) {
+                    items(pinList.filterIndexed { index, _ -> index % 2 == 0 }) { pin ->
+                        PinItem(pin)
                     }
-                )
+                }
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(5.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                ) {
+                    items(pinList.filterIndexed { index, _ -> index % 2 == 1 }) { pin ->
+                        PinItem(pin)
+                    }
+                }
             }
             //lazy vertical grid
+        }
+    }
+}
+
+@Composable
+fun PinItem(pin: Pins) {
+    val activity = (LocalContext.current as Activity)
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(5.dp),
+        shape = RoundedCornerShape(20.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            // Container for pinUrl image
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(20.dp))
+            ) {
+                Image(
+                    bitmap = ImageBitmap.imageResource(
+                        id = activity.resources.getIdentifier(pin.pinUrl, "drawable", activity.packageName)
+                    ),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color(0xFFEFEFEF))
+                    .padding(4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Image(
+                    bitmap = ImageBitmap.imageResource(
+                        id = activity.resources.getIdentifier(pin.pinProfilePictureUrl, "drawable", activity.packageName)
+                    ),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                )
+
+                Image(
+                    modifier = Modifier
+                        .clickable { /* Handle click */ }
+                        .size(28.dp),
+                    painter = painterResource(id = R.drawable.threedotblack),
+                    contentDescription = null,
+                )
+            }
         }
     }
 }
