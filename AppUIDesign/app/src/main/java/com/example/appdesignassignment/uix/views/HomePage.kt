@@ -13,8 +13,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -27,6 +29,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
@@ -51,9 +54,11 @@ import com.example.appdesignassignment.ui.theme.Black
 import com.example.appdesignassignment.ui.theme.White
 import com.example.appdesignassignment.ui.theme.arial
 import com.example.appdesignassignment.R
+import com.example.appdesignassignment.data.entity.Boards
 import com.example.appdesignassignment.data.entity.Pins
 import com.example.appdesignassignment.ui.theme.DarkModeIconColor
 import com.example.appdesignassignment.ui.theme.IconColor
+import com.example.appdesignassignment.ui.theme.arialBold
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,27 +69,31 @@ fun HomePage(navController: NavController, darkTheme: Boolean = isSystemInDarkTh
     val iconColor = if (darkTheme) DarkModeIconColor else IconColor
 
     val pinList = remember { mutableStateListOf<Pins>() }
+    val boardList = remember { mutableStateListOf<Boards>() }
 
-    val selectedItemIndex = remember { mutableStateOf(0) }
+    val selectedNavIndex = remember { mutableStateOf(0) }
+    val selectedTabIndex = remember { mutableStateOf(0) } // Separate state for tabs
 
     LaunchedEffect(key1 = true) {
-        val pin1 = Pins(1, "Cat", "cat", "mouse")
-        val pin2 = Pins(2, "Coffee Shop", "coffeeshop", "mouse")
-        val pin3 = Pins(3, "Flower", "flower", "mouse")
-        val pin4 = Pins(4, "Lime", "lime", "mouse")
-        val pin5 = Pins(5, "Monet", "monet", "mouse")
-        val pin6 = Pins(6, "Mouse", "mouse", "mouse")
-        val pin7 = Pins(7, "Outfit", "outfit", "mouse")
-        val pin8 = Pins(8, "Sculpture", "sculpture", "mouse")
+        val pins = listOf(
+            Pins(1, "Cat", "cat", "mouse"),
+            Pins(2, "Coffee Shop", "coffeeshop", "mouse"),
+            Pins(3, "Flower", "flower", "mouse"),
+            Pins(4, "Lime", "lime", "mouse"),
+            Pins(5, "Monet", "monet", "mouse"),
+            Pins(6, "Mouse", "mouse", "mouse"),
+            Pins(7, "Outfit", "outfit", "mouse"),
+            Pins(8, "Sculpture", "sculpture", "mouse")
+        )
+        pinList.addAll(pins)
 
-        pinList.add(pin1)
-        pinList.add(pin2)
-        pinList.add(pin3)
-        pinList.add(pin4)
-        pinList.add(pin5)
-        pinList.add(pin6)
-        pinList.add(pin7)
-        pinList.add(pin8)
+        val boards = listOf(
+            Boards(1, "Tümü"),
+            Boards(2, "fikirler"),
+            Boards(3, "ootd"),
+            Boards(4, "wallpaper")
+        )
+        boardList.addAll(boards)
     }
 
     Scaffold(
@@ -104,20 +113,20 @@ fun HomePage(navController: NavController, darkTheme: Boolean = isSystemInDarkTh
 
                 navigationItems.forEachIndexed { index, (icon, contentDescription) ->
                     NavigationBarItem(
-                        selected = selectedItemIndex.value == index,
-                        onClick = { selectedItemIndex.value = index },
+                        selected = selectedNavIndex.value == index,
+                        onClick = { selectedNavIndex.value = index },
                         icon = {
                             when (icon) {
                                 is ImageVector -> Icon(
                                     imageVector = icon,
                                     contentDescription = contentDescription,
-                                    tint = if (selectedItemIndex.value == index) textColor else iconColor,
+                                    tint = if (selectedNavIndex.value == index) textColor else iconColor,
                                     modifier = Modifier.size(40.dp)
                                 )
                                 is Painter -> Icon(
                                     painter = icon,
                                     contentDescription = contentDescription,
-                                    tint = if (selectedItemIndex.value == index) textColor else iconColor,
+                                    tint = if (selectedNavIndex.value == index) textColor else iconColor,
                                     modifier = Modifier.size(40.dp)
                                 )
                             }
@@ -138,24 +147,43 @@ fun HomePage(navController: NavController, darkTheme: Boolean = isSystemInDarkTh
                 .padding(paddingValues)
         ) {
             // Top tabs
-            ScrollableTabRow(
-                selectedTabIndex = 0,
-                containerColor = backgroundColor,
-                contentColor = textColor
-            ) {
-                Tab(selected = true, onClick = { /*TODO*/ }) {
-                    Text("Tümü", color = textColor, fontFamily = arial)
-                }
-                Tab(selected = false, onClick = { /*TODO*/ }) {
-                    Text("wallpaper yaparsın al b...", color = textColor, fontFamily = arial)
-                }
-                Tab(selected = false, onClick = { /*TODO*/ }) {
-                    Text("ootd", color = textColor, fontFamily = arial)
-                }
-                Tab(selected = false, onClick = { /*TODO*/ }) {
-                    Text("-dood", color = textColor, fontFamily = arial)
+            if (boardList.isNotEmpty()) { // Ensure boardList is populated
+                ScrollableTabRow(
+                    selectedTabIndex = selectedTabIndex.value,
+                    containerColor = backgroundColor,
+                    contentColor = textColor,
+                    edgePadding = 16.dp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(backgroundColor),
+                    indicator = { tabPositions ->
+                        TabRowDefaults.Indicator(
+                            Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex.value])
+                                .widthIn(min = 10.dp)
+                                .padding(horizontal = 8.dp),
+                            color = textColor
+                        )
+                    }
+                ) {
+                    boardList.forEachIndexed { index, board ->
+                        Tab(
+                            selected = selectedTabIndex.value == index,
+                            onClick = { selectedTabIndex.value = index },
+                            text = {
+                                Text(
+                                    text = board.name,
+                                    color = textColor,
+                                    fontFamily = arialBold,
+                                    fontSize = 20.sp
+                                )
+                            }
+                        )
+                    }
                 }
             }
+
+            Spacer(modifier = Modifier.height(8.dp)) // Add spacing between tabs and content
+
 
             // Content Grid
             Row(

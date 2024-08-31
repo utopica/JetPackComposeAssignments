@@ -36,3 +36,4 @@ val Typography = Typography(
 )
 
 val arial = FontFamily(Font(R.font.arial))
+val arialBold = FontFamily(Font(R.font.arialbold))
