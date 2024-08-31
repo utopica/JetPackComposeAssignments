@@ -30,12 +30,15 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.imageResource
@@ -49,6 +52,8 @@ import com.example.appdesignassignment.ui.theme.White
 import com.example.appdesignassignment.ui.theme.arial
 import com.example.appdesignassignment.R
 import com.example.appdesignassignment.data.entity.Pins
+import com.example.appdesignassignment.ui.theme.DarkModeIconColor
+import com.example.appdesignassignment.ui.theme.IconColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,8 +61,11 @@ fun HomePage(navController: NavController, darkTheme: Boolean = isSystemInDarkTh
 
     val backgroundColor = if (darkTheme) Black else White
     val textColor = if (darkTheme) White else Black
+    val iconColor = if (darkTheme) DarkModeIconColor else IconColor
 
     val pinList = remember { mutableStateListOf<Pins>() }
+
+    val selectedItemIndex = remember { mutableStateOf(0) }
 
     LaunchedEffect(key1 = true) {
         val pin1 = Pins(1, "Cat", "cat", "mouse")
@@ -81,66 +89,46 @@ fun HomePage(navController: NavController, darkTheme: Boolean = isSystemInDarkTh
 
     Scaffold(
         containerColor = backgroundColor,
-
         bottomBar = {
             NavigationBar(
                 containerColor = backgroundColor,
                 modifier = Modifier.padding(0.dp)
-            ){
-                NavigationBarItem(
-                    selected = true,
-                    onClick = { /*TODO*/ },
-                    icon = { Icon(
-                        imageVector = Icons.Default.Home,
-                        contentDescription = "Home",
-                        tint = textColor,
-                        modifier = Modifier.size(40.dp, 40.dp)
+            ) {
+                val navigationItems = listOf(
+                    Icons.Default.Home to "Home",
+                    Icons.Default.Search to "Search",
+                    Icons.Default.Add to "Add",
+                    painterResource(id = R.drawable.message) to "Message",
+                    Icons.Default.Person to "Profile"
+                )
 
-                    ) })
-
-                NavigationBarItem(
-                    selected = false,
-                    onClick = { /*TODO*/ },
-                    icon = { Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Search",
-                        tint = textColor,
-                        modifier = Modifier.size(40.dp, 40.dp)
-
-                    ) })
-
-                NavigationBarItem(
-                    selected = false,
-                    onClick = { /*TODO*/ },
-                    icon = { Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Add",
-                        tint = textColor,
-                        modifier = Modifier.size(40.dp, 40.dp)
-
-                    ) })
-
-                NavigationBarItem(
-                    selected = false,
-                    onClick = { /*TODO*/ },
-                    icon = { Icon(
-                        painter = painterResource(id = R.drawable.message),
-                        contentDescription = "Message",
-                        tint = textColor,
-                        modifier = Modifier.size(40.dp, 40.dp)
-
-                    ) })
-
-                NavigationBarItem(
-                    selected = false,
-                    onClick = { /*TODO*/ },
-                    icon = { Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = "Profile",
-                        tint = textColor,
-                        modifier = Modifier.size(40.dp, 40.dp)
-
-                    ) })
+                navigationItems.forEachIndexed { index, (icon, contentDescription) ->
+                    NavigationBarItem(
+                        selected = selectedItemIndex.value == index,
+                        onClick = { selectedItemIndex.value = index },
+                        icon = {
+                            when (icon) {
+                                is ImageVector -> Icon(
+                                    imageVector = icon,
+                                    contentDescription = contentDescription,
+                                    tint = if (selectedItemIndex.value == index) textColor else iconColor,
+                                    modifier = Modifier.size(40.dp)
+                                )
+                                is Painter -> Icon(
+                                    painter = icon,
+                                    contentDescription = contentDescription,
+                                    tint = if (selectedItemIndex.value == index) textColor else iconColor,
+                                    modifier = Modifier.size(40.dp)
+                                )
+                            }
+                        },
+                        colors = NavigationBarItemDefaults.colors(
+                            indicatorColor = Color.Transparent,
+                            selectedIconColor = textColor,
+                            unselectedIconColor = iconColor
+                        )
+                    )
+                }
             }
         }
     ) { paddingValues ->
@@ -196,7 +184,6 @@ fun HomePage(navController: NavController, darkTheme: Boolean = isSystemInDarkTh
                     }
                 }
             }
-            //lazy vertical grid
         }
     }
 }
@@ -214,7 +201,6 @@ fun PinItem(pin: Pins) {
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
-            // Container for pinUrl image
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(20.dp))
@@ -256,3 +242,4 @@ fun PinItem(pin: Pins) {
         }
     }
 }
+
