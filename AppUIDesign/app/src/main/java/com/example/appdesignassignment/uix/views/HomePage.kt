@@ -84,15 +84,25 @@ fun HomePage(navController: NavController, darkTheme: Boolean = isSystemInDarkTh
 
     LaunchedEffect(key1 = true) {
         val pins = listOf(
-            Pins(1, "Cat", "cat", "mouse"),
-            Pins(2, "Coffee Shop", "coffeeshop", "mouse"),
-            Pins(3, "Flower", "flower", "mouse"),
-            Pins(4, "Lime", "lime", "mouse"),
-            Pins(5, "Monet", "monet", "mouse"),
-            Pins(6, "Mouse", "mouse", "mouse"),
-            Pins(7, "Outfit", "outfit", "mouse"),
-            Pins(8, "Sculpture", "sculpture", "mouse")
-        )
+            Pins(1, "Flowers On Bed", "flowersonbed", "profilegirl"),
+            Pins(2, "Bedroom Decore", "bedroomdecore", "defaultprofile"),
+            Pins(3, "Butterfly", "butterfly", "profilegirl"),
+            Pins(4, "Lime", "lime", "profilegirl"),
+            Pins(5, "Monet", "monet", "profilegirl"),
+            Pins(6, "Outfit Fall", "outfitfall", "profilegreen"),
+            Pins(7, "Flower", "flower", "profilegreen"),
+            Pins(8, "Coffee Shop", "coffeeshop", "profilenature"),
+            Pins(9, "Outfit", "outfit", "profilegirl"),
+            Pins(10, "Sculpture", "sculpture", "profilegreen"),
+            Pins(11, "HomeDecor", "homedecor", "defaultprofile"),
+            Pins(12, "Cat With Scarf", "catwithscarf", "mouse"),
+            Pins(13, "Purple Cafe", "purplecafe", "profilenature"),
+            Pins(14, "Purple Wp", "purplewp", "defaultprofile"),
+            Pins(15, "Reader Girl", "readergirl", "profilegirl"),
+            Pins(16, "Ship", "ship", "profilenature"),
+            Pins(17, "Country Girl", "countrygirl", "profilecat"),
+            Pins(18, "Cat", "cat", "mouse"),
+            Pins(19, "Painting", "painting", "profilegreen"))
         pinList.addAll(pins)
 
         val boards = listOf(
