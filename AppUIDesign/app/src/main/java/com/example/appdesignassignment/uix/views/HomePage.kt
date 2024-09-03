@@ -1,14 +1,10 @@
 package com.example.appdesignassignment.uix.views
 
-import android.app.Activity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,17 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -47,19 +32,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.appdesignassignment.ui.theme.Black
 import com.example.appdesignassignment.ui.theme.White
-import com.example.appdesignassignment.ui.theme.arial
 import com.example.appdesignassignment.R
 import com.example.appdesignassignment.data.entity.Boards
 import com.example.appdesignassignment.data.entity.Pins
@@ -119,41 +99,37 @@ fun HomePage(navController: NavController, darkTheme: Boolean = isSystemInDarkTh
         bottomBar = {
             NavigationBar(
                 containerColor = backgroundColor,
+                modifier = Modifier.height(80.dp)
             ) {
-                val navigationItems = listOf(
-                    Icons.Default.Home to "Home",
-                    Icons.Default.Search to "Search",
-                    Icons.Default.Add to "Add",
-                    painterResource(id = R.drawable.message) to "Message",
-                    Icons.Default.Person to "Profile"
-                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    val navigationItems = listOf(
+                        painterResource(id = R.drawable.home) to "Home",
+                        painterResource(id = R.drawable.search) to "Search",
+                        painterResource(id = R.drawable.plus) to "Add",
+                        painterResource(id = R.drawable.chat) to "Chat",
+                        painterResource(id = R.drawable.profile) to "Profile",
+                    )
 
-                navigationItems.forEachIndexed { index, (icon, contentDescription) ->
-                    NavigationBarItem(
-                        selected = selectedNavIndex.value == index,
-                        onClick = { selectedNavIndex.value = index },
-                        icon = {
+                    navigationItems.forEachIndexed { index, (icon, contentDescription) ->
+                        IconButton(
+                            onClick = { selectedNavIndex.value = index }
+                        ) {
                             when (icon) {
-                                is ImageVector -> Icon(
-                                    imageVector = icon,
-                                    contentDescription = contentDescription,
-                                    tint = if (selectedNavIndex.value == index) textColor else iconColor,
-                                    modifier = Modifier.size(40.dp)
-                                )
                                 is Painter -> Icon(
                                     painter = icon,
                                     contentDescription = contentDescription,
                                     tint = if (selectedNavIndex.value == index) textColor else iconColor,
-                                    modifier = Modifier.size(40.dp)
+                                    modifier = Modifier.size(32.dp)
                                 )
                             }
-                        },
-                        colors = NavigationBarItemDefaults.colors(
-                            indicatorColor = Color.Transparent,
-                            selectedIconColor = textColor,
-                            unselectedIconColor = iconColor
-                        )
-                    )
+                        }
+                    }
                 }
             }
         }
@@ -171,17 +147,16 @@ fun HomePage(navController: NavController, darkTheme: Boolean = isSystemInDarkTh
                     contentColor = textColor,
                     edgePadding = 16.dp,
                     indicator = { tabPositions ->
-                        TabRowDefaults. SecondaryIndicator(
+                        TabRowDefaults.Indicator(
                             Modifier
                                 .tabIndicatorOffset(tabPositions[selectedTabIndex.value])
-                                .width(tabPositions[selectedTabIndex.value].contentWidth)
+                                .padding(horizontal = 16.dp, vertical = 6.dp)
                                 .clip(RoundedCornerShape(5.dp)),
                             height = 5.dp,
                             color = textColor
                         )
-
                     },
-                    divider = { // Remove the default gray divider line
+                    divider = {
                         Divider(color = Color.Transparent)
                     },
 
@@ -196,7 +171,8 @@ fun HomePage(navController: NavController, darkTheme: Boolean = isSystemInDarkTh
                                     text = board.name,
                                     color = textColor,
                                     fontFamily = arialBold,
-                                    fontSize = 20.sp
+                                    fontSize = 20.sp,
+
                                 )
                             }
                         )
