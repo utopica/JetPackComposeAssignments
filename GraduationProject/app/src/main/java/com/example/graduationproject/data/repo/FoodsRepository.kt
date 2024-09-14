@@ -5,5 +5,7 @@ import com.example.graduationproject.data.entities.Foods
 
 class FoodsRepository (var foodsDataSource: FoodsDataSource) {
 
-    suspend fun getFoods() : List<Foods> = foodsDataSource.getFoods()
+    suspend fun getFoods(): List<Foods> = foodsDataSource.getFoods()
+
+    suspend fun getFoodImage(picName: String): String = foodsDataSource.getFoodImage(picName)
 }
