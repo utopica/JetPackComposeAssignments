@@ -53,10 +53,12 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.graduationproject.R
+import com.example.graduationproject.data.entities.Carts
 import com.example.graduationproject.data.entities.Foods
 import com.example.graduationproject.ui.theme.PeachText
 import com.example.graduationproject.ui.theme.poppinsMedium
 import com.example.graduationproject.uix.viewmodel.HomePageViewModel
+import com.google.gson.Gson
 import com.skydoves.landscapist.glide.GlideImage
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -110,7 +112,7 @@ fun HomePage(navController: NavController, homePageViewModel: HomePageViewModel)
             }
 
             item {
-                RecommendedSection(foodsList = foodsList, homePageViewModel = homePageViewModel)
+                RecommendedSection(foodsList = foodsList, homePageViewModel = homePageViewModel, navController = navController)
             }
         }
 
@@ -164,7 +166,7 @@ fun DiscountCard() {
 }
 
 @Composable
-fun RecommendedSection(foodsList: List<Foods>, homePageViewModel: HomePageViewModel) {
+fun RecommendedSection(foodsList: List<Foods>, homePageViewModel: HomePageViewModel, navController: NavController) {
     Column {
         Text(
             "Recommended",
@@ -178,7 +180,7 @@ fun RecommendedSection(foodsList: List<Foods>, homePageViewModel: HomePageViewMo
             verticalArrangement = Arrangement.spacedBy(16.dp),
             content = {
                 items(foodsList.size) { index ->
-                    FoodItem(food = foodsList[index], homePageViewModel = homePageViewModel)
+                    FoodItem(food = foodsList[index], homePageViewModel = homePageViewModel, navController = navController)
                 }
             },
             modifier = Modifier.height(400.dp) // Adjust this value as needed
@@ -186,7 +188,7 @@ fun RecommendedSection(foodsList: List<Foods>, homePageViewModel: HomePageViewMo
     }
 }
 @Composable
-fun FoodItem(food: Foods, homePageViewModel: HomePageViewModel) {
+fun FoodItem(food: Foods, homePageViewModel: HomePageViewModel, navController: NavController) {
 
     val composition by rememberLottieComposition(
         spec = LottieCompositionSpec.RawRes(R.raw.cart)
@@ -205,7 +207,11 @@ fun FoodItem(food: Foods, homePageViewModel: HomePageViewModel) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .aspectRatio(0.8f),
+            .aspectRatio(0.8f)
+            .clickable {
+                val foodJson = Gson().toJson(food)
+                navController.navigate("detailsPage/$foodJson")
+            },
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
