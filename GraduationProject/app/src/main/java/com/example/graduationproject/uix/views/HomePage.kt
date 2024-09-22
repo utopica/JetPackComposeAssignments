@@ -1,7 +1,6 @@
 package com.example.graduationproject.uix.views
 
 import androidx.compose.animation.core.animate
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -10,13 +9,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -31,6 +28,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -39,6 +38,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,7 +54,7 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.graduationproject.R
-import com.example.graduationproject.data.entities.Carts
+import com.example.graduationproject.data.entities.AddCartRequest
 import com.example.graduationproject.data.entities.Foods
 import com.example.graduationproject.ui.theme.PeachText
 import com.example.graduationproject.ui.theme.poppinsMedium
@@ -62,15 +62,23 @@ import com.example.graduationproject.uix.viewmodel.CartPageViewModel
 import com.example.graduationproject.uix.viewmodel.HomePageViewModel
 import com.google.gson.Gson
 import com.skydoves.landscapist.glide.GlideImage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomePage(navController: NavController, homePageViewModel: HomePageViewModel, cartPageViewModel: CartPageViewModel) {
+fun HomePage(
+    navController: NavController,
+    homePageViewModel: HomePageViewModel,
+    cartPageViewModel: CartPageViewModel
+) {
 
     val foodsList by homePageViewModel.foodsList.observeAsState(listOf())
 
     var searchQuery by remember { mutableStateOf("") }
 
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(key1 = true) {
         homePageViewModel.getFoods()
@@ -90,16 +98,27 @@ fun HomePage(navController: NavController, homePageViewModel: HomePageViewModel,
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = {  }) {
-                        Icon(painterResource(id = R.drawable.menu), modifier = Modifier.size(24.dp), contentDescription = "Menu")
+                    IconButton(onClick = { }) {
+                        Icon(
+                            painterResource(id = R.drawable.menu),
+                            modifier = Modifier.size(24.dp),
+                            contentDescription = "Menu"
+                        )
                     }
                 },
                 actions = {
-                    IconButton(onClick = {  }) {
-                        Icon(painterResource(id = R.drawable.filter), modifier = Modifier.size(24.dp), contentDescription = "Filter")
+                    IconButton(onClick = { }) {
+                        Icon(
+                            painterResource(id = R.drawable.filter),
+                            modifier = Modifier.size(24.dp),
+                            contentDescription = "Filter"
+                        )
                     }
                 }
             )
+        },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
         }
     ) { paddingValues ->
         LazyColumn(
@@ -109,12 +128,20 @@ fun HomePage(navController: NavController, homePageViewModel: HomePageViewModel,
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+
             item {
                 DiscountCard()
             }
 
             item {
-                RecommendedSection(foodsList = foodsList, homePageViewModel = homePageViewModel, cartPageViewModel = cartPageViewModel , navController = navController)
+                RecommendedSection(
+                    foodsList = foodsList,
+                    homePageViewModel = homePageViewModel,
+                    cartPageViewModel = cartPageViewModel,
+                    navController = navController,
+                    snackbarHostState = snackbarHostState,
+                    scope = scope
+                )
             }
 
             item {
@@ -128,7 +155,11 @@ fun HomePage(navController: NavController, homePageViewModel: HomePageViewModel,
 }
 
 @Composable
-fun SearchBar(searchQuery: String, onSearchQueryChange: (String) -> Unit, modifier: Modifier = Modifier) {
+fun SearchBar(
+    searchQuery: String,
+    onSearchQueryChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     TextField(
         value = searchQuery,
         onValueChange = onSearchQueryChange,
@@ -174,7 +205,14 @@ fun DiscountCard() {
 }
 
 @Composable
-fun RecommendedSection(foodsList: List<Foods>, homePageViewModel: HomePageViewModel, cartPageViewModel: CartPageViewModel, navController: NavController) {
+fun RecommendedSection(
+    foodsList: List<Foods>,
+    homePageViewModel: HomePageViewModel,
+    cartPageViewModel: CartPageViewModel,
+    navController: NavController,
+    snackbarHostState: SnackbarHostState,
+    scope: CoroutineScope
+) {
     Column {
         Text(
             "Recommended",
@@ -188,15 +226,30 @@ fun RecommendedSection(foodsList: List<Foods>, homePageViewModel: HomePageViewMo
             verticalArrangement = Arrangement.spacedBy(16.dp),
             content = {
                 items(foodsList.size) { index ->
-                    FoodItem(food = foodsList[index], homePageViewModel = homePageViewModel, cartPageViewModel = cartPageViewModel , navController = navController)
+                    FoodItem(
+                        food = foodsList[index],
+                        homePageViewModel = homePageViewModel,
+                        cartPageViewModel = cartPageViewModel,
+                        navController = navController,
+                        snackbarHostState = snackbarHostState,
+                        scope = scope
+                    )
                 }
             },
-            modifier = Modifier.height(400.dp) // Adjust this value as needed
+            modifier = Modifier.height(400.dp)
         )
     }
 }
+
 @Composable
-fun FoodItem(food: Foods, homePageViewModel: HomePageViewModel, cartPageViewModel: CartPageViewModel, navController: NavController) {
+fun FoodItem(
+    food: Foods,
+    homePageViewModel: HomePageViewModel,
+    cartPageViewModel: CartPageViewModel,
+    navController: NavController,
+    snackbarHostState: SnackbarHostState,
+    scope: CoroutineScope
+) {
 
     val composition by rememberLottieComposition(
         spec = LottieCompositionSpec.RawRes(R.raw.cart)
@@ -233,7 +286,6 @@ fun FoodItem(food: Foods, homePageViewModel: HomePageViewModel, cartPageViewMode
                     .fillMaxWidth()
                     .aspectRatio(1f),
                 contentScale = ContentScale.Crop
-
             )
 
             Row(
@@ -259,44 +311,38 @@ fun FoodItem(food: Foods, homePageViewModel: HomePageViewModel, cartPageViewMode
                 }
 
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clickable {
-                                try {
-                                    val cartItem = Carts(
-                                        cart_food_id = food.food_id,
-                                        food_name = food.food_name,
-                                        food_picName = food.food_picName,
-                                        food_price = food.food_price,
-                                        cart_order_count = 1,
-                                        username = username
-                                    )
-                                    cartPageViewModel.addToCart(cartItem)
-                                    isPlaying = true
-                                    progress = 0f
-                                } catch (e: Exception) {
-                            e.printStackTrace()
-                            // Handle error, perhaps show a toast or snackbar
-                        }
-
-                        },
+                    modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.CenterEnd
                 ) {
                     LottieAnimation(
                         composition = composition,
-                        modifier = Modifier.size(70.dp).clickable {
-                            isPlaying = true
-                            progress = 0f
-                        },
+                        modifier = Modifier
+                            .size(70.dp)
+                            .clickable {
+                                isPlaying = true
+                                progress = 0f
+
+                                val cartRequest = AddCartRequest(
+                                    food_name = food.food_name,
+                                    food_picName = food.food_picName,
+                                    food_price = food.food_price,
+                                    cart_order_count = 1,
+                                    username = username
+                                )
+                                cartPageViewModel.addToCart(cartRequest)
+
+                                // Trigger Snackbar
+                                scope.launch {
+                                    snackbarHostState.showSnackbar("${food.food_name} added to cart.")
+                                }
+                            },
                         progress = { progress },
                     )
 
                     LaunchedEffect(isPlaying) {
                         if (isPlaying) {
                             animate(
-                                0f,
-                                1f,
-                                animationSpec = tween(durationMillis = 1000)
+                                0f, 1f, animationSpec = tween(durationMillis = 1000)
                             ) { value, _ ->
                                 progress = value
                             }
@@ -305,9 +351,9 @@ fun FoodItem(food: Foods, homePageViewModel: HomePageViewModel, cartPageViewMode
                     }
                 }
             }
-
         }
     }
 }
+
 
 

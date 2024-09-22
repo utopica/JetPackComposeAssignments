@@ -1,9 +1,9 @@
 package com.example.graduationproject.retrofit
 
+import com.example.graduationproject.data.entities.AddCartRequest
 import com.example.graduationproject.data.entities.CRUDResponse
 import com.example.graduationproject.data.entities.CartRequest
 import com.example.graduationproject.data.entities.CartResponse
-import com.example.graduationproject.data.entities.Carts
 import com.example.graduationproject.data.entities.FoodsResponse
 import com.example.graduationproject.data.entities.RemoveCartRequest
 import retrofit2.http.Body
@@ -21,7 +21,7 @@ interface FoodsDao {
     suspend fun getFoodImage(picName: String): String
 
     @POST("yemekler/sepeteYemekEkle.php")
-    suspend fun addToCart(@Body cartItem: Carts): CRUDResponse
+    suspend fun addToCart(@Body addCartRequest: AddCartRequest): CRUDResponse
 
     @POST("yemekler/sepettekiYemekleriGetir.php")
     suspend fun getCartItems(@Body request: CartRequest): CartResponse

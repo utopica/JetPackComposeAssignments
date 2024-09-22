@@ -3,7 +3,7 @@ package com.example.graduationproject.uix.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import com.example.graduationproject.data.entities.AddCartRequest
 import com.example.graduationproject.data.entities.CRUDResponse
 import com.example.graduationproject.data.entities.Carts
 import com.example.graduationproject.data.repo.FoodsRepository
@@ -22,7 +22,7 @@ class CartPageViewModel @Inject constructor(var foodsRepo : FoodsRepository) : V
     val _cartOperationResult = MutableLiveData<CRUDResponse>()
     val cartOperationResult: LiveData<CRUDResponse> = _cartOperationResult
 
-    fun addToCart(cartItem: Carts) {
+    fun addToCart(cartItem: AddCartRequest) {
         CoroutineScope(Dispatchers.Main).launch {
             val result = foodsRepo.addToCart(cartItem)
             _cartOperationResult.value = result

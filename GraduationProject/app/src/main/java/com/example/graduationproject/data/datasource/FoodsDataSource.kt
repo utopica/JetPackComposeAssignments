@@ -1,8 +1,8 @@
 package com.example.graduationproject.data.datasource
 
+import com.example.graduationproject.data.entities.AddCartRequest
 import com.example.graduationproject.data.entities.CRUDResponse
 import com.example.graduationproject.data.entities.CartRequest
-import com.example.graduationproject.data.entities.CartResponse
 import com.example.graduationproject.data.entities.Carts
 import com.example.graduationproject.data.entities.Foods
 import com.example.graduationproject.data.entities.RemoveCartRequest
@@ -20,8 +20,8 @@ class FoodsDataSource (var foodsdao : FoodsDao){
         return@withContext foodsdao.getFoodImage(picName)
     }
 
-    suspend fun addToCart(cartItem: Carts): CRUDResponse = withContext(Dispatchers.IO) {
-        foodsdao.addToCart(cartItem)
+    suspend fun addToCart(addCartRequest: AddCartRequest): CRUDResponse = withContext(Dispatchers.IO) {
+        foodsdao.addToCart(addCartRequest)
     }
 
     suspend fun getCartItems(username: String): List<Carts> = withContext(Dispatchers.IO) {

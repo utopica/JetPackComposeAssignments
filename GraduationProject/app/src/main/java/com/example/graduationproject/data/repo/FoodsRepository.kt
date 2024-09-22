@@ -1,6 +1,7 @@
 package com.example.graduationproject.data.repo
 
 import com.example.graduationproject.data.datasource.FoodsDataSource
+import com.example.graduationproject.data.entities.AddCartRequest
 import com.example.graduationproject.data.entities.CRUDResponse
 import com.example.graduationproject.data.entities.Carts
 import com.example.graduationproject.data.entities.Foods
@@ -11,7 +12,7 @@ class FoodsRepository (var foodsDataSource: FoodsDataSource) {
 
     suspend fun getFoodImage(picName: String): String = foodsDataSource.getFoodImage(picName)
 
-    suspend fun addToCart(cartItem: Carts): CRUDResponse = foodsDataSource.addToCart(cartItem)
+    suspend fun addToCart(addCartRequest: AddCartRequest): CRUDResponse = foodsDataSource.addToCart(addCartRequest)
 
     suspend fun getCartItems(username: String): List<Carts> = foodsDataSource.getCartItems(username)
 
