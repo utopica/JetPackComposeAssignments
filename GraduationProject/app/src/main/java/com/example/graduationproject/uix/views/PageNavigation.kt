@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.graduationproject.data.entities.Foods
+import com.example.graduationproject.uix.viewmodel.CartPageViewModel
 import com.example.graduationproject.uix.viewmodel.DetailsPageViewModel
 import com.example.graduationproject.uix.viewmodel.HomePageViewModel
 import com.google.gson.Gson
@@ -15,13 +16,18 @@ import com.google.gson.Gson
 @Composable
 fun PageNavigation(
     homePageViewModel: HomePageViewModel,
-    detailsPageViewModel : DetailsPageViewModel){
+    detailsPageViewModel : DetailsPageViewModel,
+    cartPageViewModel: CartPageViewModel){
 
     val navController = rememberNavController()
 
     NavHost(navController = navController, startDestination = "homepage") {
         composable("homepage"){
-            HomePage(navController, homePageViewModel)
+            HomePage(navController, homePageViewModel, cartPageViewModel)
+        }
+
+        composable("cartPage"){
+            CartPage(navController = navController, cartPageViewModel = cartPageViewModel)
         }
 
         composable(

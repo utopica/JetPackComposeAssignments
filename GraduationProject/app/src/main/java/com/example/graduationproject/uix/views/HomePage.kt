@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -57,13 +58,14 @@ import com.example.graduationproject.data.entities.Carts
 import com.example.graduationproject.data.entities.Foods
 import com.example.graduationproject.ui.theme.PeachText
 import com.example.graduationproject.ui.theme.poppinsMedium
+import com.example.graduationproject.uix.viewmodel.CartPageViewModel
 import com.example.graduationproject.uix.viewmodel.HomePageViewModel
 import com.google.gson.Gson
 import com.skydoves.landscapist.glide.GlideImage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomePage(navController: NavController, homePageViewModel: HomePageViewModel) {
+fun HomePage(navController: NavController, homePageViewModel: HomePageViewModel, cartPageViewModel: CartPageViewModel) {
 
     val foodsList by homePageViewModel.foodsList.observeAsState(listOf())
 
@@ -112,7 +114,13 @@ fun HomePage(navController: NavController, homePageViewModel: HomePageViewModel)
             }
 
             item {
-                RecommendedSection(foodsList = foodsList, homePageViewModel = homePageViewModel, navController = navController)
+                RecommendedSection(foodsList = foodsList, homePageViewModel = homePageViewModel, cartPageViewModel = cartPageViewModel , navController = navController)
+            }
+
+            item {
+                IconButton(onClick = { navController.navigate("cartPage") }) {
+                    Icon(Icons.Default.ShoppingCart, contentDescription = "Go to Cart")
+                }
             }
         }
 
@@ -166,7 +174,7 @@ fun DiscountCard() {
 }
 
 @Composable
-fun RecommendedSection(foodsList: List<Foods>, homePageViewModel: HomePageViewModel, navController: NavController) {
+fun RecommendedSection(foodsList: List<Foods>, homePageViewModel: HomePageViewModel, cartPageViewModel: CartPageViewModel, navController: NavController) {
     Column {
         Text(
             "Recommended",
@@ -180,7 +188,7 @@ fun RecommendedSection(foodsList: List<Foods>, homePageViewModel: HomePageViewMo
             verticalArrangement = Arrangement.spacedBy(16.dp),
             content = {
                 items(foodsList.size) { index ->
-                    FoodItem(food = foodsList[index], homePageViewModel = homePageViewModel, navController = navController)
+                    FoodItem(food = foodsList[index], homePageViewModel = homePageViewModel, cartPageViewModel = cartPageViewModel , navController = navController)
                 }
             },
             modifier = Modifier.height(400.dp) // Adjust this value as needed
@@ -188,17 +196,15 @@ fun RecommendedSection(foodsList: List<Foods>, homePageViewModel: HomePageViewMo
     }
 }
 @Composable
-fun FoodItem(food: Foods, homePageViewModel: HomePageViewModel, navController: NavController) {
+fun FoodItem(food: Foods, homePageViewModel: HomePageViewModel, cartPageViewModel: CartPageViewModel, navController: NavController) {
 
     val composition by rememberLottieComposition(
         spec = LottieCompositionSpec.RawRes(R.raw.cart)
     )
     var isPlaying by remember { mutableStateOf(false) }
     var progress by remember { mutableStateOf(0f) }
-    val cartSize by animateDpAsState(
-        targetValue = 300.dp,
-        animationSpec = tween(durationMillis = 500)
-    )
+
+    val username = "elif_okumus"
 
     LaunchedEffect(food.food_picName) {
         homePageViewModel.getFoodImage(food.food_picName)
@@ -254,7 +260,26 @@ fun FoodItem(food: Foods, homePageViewModel: HomePageViewModel, navController: N
 
                 Box(
                     modifier = Modifier
-                        .fillMaxSize(),
+                        .fillMaxSize()
+                        .clickable {
+                                try {
+                                    val cartItem = Carts(
+                                        cart_food_id = food.food_id,
+                                        food_name = food.food_name,
+                                        food_picName = food.food_picName,
+                                        food_price = food.food_price,
+                                        cart_order_count = 1,
+                                        username = username
+                                    )
+                                    cartPageViewModel.addToCart(cartItem)
+                                    isPlaying = true
+                                    progress = 0f
+                                } catch (e: Exception) {
+                            e.printStackTrace()
+                            // Handle error, perhaps show a toast or snackbar
+                        }
+
+                        },
                     contentAlignment = Alignment.CenterEnd
                 ) {
                     LottieAnimation(
