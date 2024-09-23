@@ -18,9 +18,6 @@ interface FoodsDao {
     @GET("yemekler/tumYemekleriGetir.php")
     suspend fun getFoods() : FoodsResponse
 
-    @GET("yemekler/resimler/{food_picName}")
-    suspend fun getFoodImage(picName: String): String
-
     @POST("yemekler/sepeteYemekEkle.php")
     suspend fun addToCart(@Body addCartRequest: AddCartRequest): CRUDResponse
 

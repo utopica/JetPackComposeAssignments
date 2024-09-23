@@ -271,9 +271,6 @@ fun FoodItem(
 
     var order_count = remember { mutableStateOf(0) }
 
-    LaunchedEffect(food.food_picName) {
-        homePageViewModel.getFoodImage(food.food_picName)
-    }
 
     Card(
         modifier = Modifier

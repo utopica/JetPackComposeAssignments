@@ -15,8 +15,7 @@ import javax.inject.Inject
 class HomePageViewModel @Inject constructor(var foodsRepo : FoodsRepository) : ViewModel() {
 
     var foodsList = MutableLiveData<List<Foods>>()
-    var foodImage = MutableLiveData<String>()
-
+    
     init {
         getFoods()
     }
@@ -27,18 +26,6 @@ class HomePageViewModel @Inject constructor(var foodsRepo : FoodsRepository) : V
 
             Log.e("HomePageViewModel", " images ${foodsList.value}")
 
-        }
-    }
-
-    fun getFoodImage(picName: String) {
-        CoroutineScope(Dispatchers.Main).launch {
-            try {
-                foodImage.value = foodsRepo.getFoodImage(picName)
-
-                Log.e("HomePageViewModel", "images ${foodsList}")
-            } catch (e: Exception) {
-                foodImage.value = "error"
-            }
         }
     }
 }

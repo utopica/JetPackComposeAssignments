@@ -184,7 +184,7 @@ fun DetailsPage(navController: NavController, food: Foods, orderCount: Int, deta
                             )
 
                             Log.e(
-                                "CartPageViewModel",
+                                "DetailsPage",
                                 "Adding to cart: food_name=${cartRequest.food_name}, food_picName=${cartRequest.food_picName}, food_price=${cartRequest.food_price}, cart_order_count=${cartRequest.cart_order_count}, username=${cartRequest.username}"
                             )
 
