@@ -1,6 +1,5 @@
 package com.example.graduationproject.uix.views
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,9 +23,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -38,8 +34,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.graduationproject.data.entities.AddCartRequest
-import com.example.graduationproject.data.entities.Carts
+import com.example.graduationproject.data.entities.AddCartItem
 import com.example.graduationproject.data.entities.Foods
 import com.example.graduationproject.ui.theme.Peach
 import com.example.graduationproject.ui.theme.PeachContainer
@@ -180,8 +175,19 @@ fun DetailsPage(navController: NavController, food: Foods, orderCount: Int, deta
 
                     IconButton(
                         onClick = {
+
+                            val cartItem = AddCartItem(
+                                food_name = food.food_name,
+                                food_picName = food.food_picName,
+                                food_price = food.food_price,
+                                cart_order_count = currentOrderCount.value,
+                                username = username
+                            )
+
+                            val cartJson = Gson().toJson(cartItem)
+
                             navController.navigate(
-                                "cartPage/${food.food_name}/${food.food_picName}/${food.food_price}/${currentOrderCount.value}/${username}"
+                                "cartPage/${cartJson}"
                             )
                         },
                         modifier = Modifier

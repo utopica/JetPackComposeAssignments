@@ -1,10 +1,7 @@
 package com.example.graduationproject.retrofit
 
-import com.example.graduationproject.data.entities.AddCartRequest
 import com.example.graduationproject.data.entities.CRUDResponse
-import com.example.graduationproject.data.entities.CartRequest
 import com.example.graduationproject.data.entities.CartResponse
-import com.example.graduationproject.data.entities.Carts
 import com.example.graduationproject.data.entities.FoodsResponse
 import com.example.graduationproject.data.entities.RemoveCartRequest
 import retrofit2.http.Body

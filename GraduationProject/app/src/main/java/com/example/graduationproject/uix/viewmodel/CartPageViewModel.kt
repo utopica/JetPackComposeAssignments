@@ -34,6 +34,9 @@ class CartPageViewModel @Inject constructor(var foodsRepo : FoodsRepository) : V
                 "kullanici_adi" to cart.username
             )
 
+            Log.e("CartPageViewModel", "MAP: $requestMap")
+
+
             val result = foodsRepo.addToCart(requestMap)
 
             _cartOperationResult.value = result

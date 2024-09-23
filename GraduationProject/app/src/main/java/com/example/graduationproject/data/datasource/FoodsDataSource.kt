@@ -1,8 +1,6 @@
 package com.example.graduationproject.data.datasource
 
-import com.example.graduationproject.data.entities.AddCartRequest
 import com.example.graduationproject.data.entities.CRUDResponse
-import com.example.graduationproject.data.entities.CartRequest
 import com.example.graduationproject.data.entities.Carts
 import com.example.graduationproject.data.entities.Foods
 import com.example.graduationproject.data.entities.RemoveCartRequest

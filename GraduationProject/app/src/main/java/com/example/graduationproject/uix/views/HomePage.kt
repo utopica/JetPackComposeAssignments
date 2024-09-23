@@ -1,6 +1,5 @@
 package com.example.graduationproject.uix.views
 
-import android.util.Log
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -56,7 +55,6 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.graduationproject.R
-import com.example.graduationproject.data.entities.AddCartRequest
 import com.example.graduationproject.data.entities.Foods
 import com.example.graduationproject.ui.theme.Orange
 import com.example.graduationproject.ui.theme.PeachContainer
