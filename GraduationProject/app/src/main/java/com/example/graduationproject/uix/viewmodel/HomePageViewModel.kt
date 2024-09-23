@@ -1,5 +1,6 @@
 package com.example.graduationproject.uix.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.graduationproject.data.entities.Foods
@@ -23,6 +24,9 @@ class HomePageViewModel @Inject constructor(var foodsRepo : FoodsRepository) : V
     fun getFoods(){
         CoroutineScope(Dispatchers.Main).launch {
             foodsList.value = foodsRepo.getFoods()
+
+            Log.e("HomePageViewModel", " images ${foodsList.value}")
+
         }
     }
 
@@ -30,8 +34,9 @@ class HomePageViewModel @Inject constructor(var foodsRepo : FoodsRepository) : V
         CoroutineScope(Dispatchers.Main).launch {
             try {
                 foodImage.value = foodsRepo.getFoodImage(picName)
+
+                Log.e("HomePageViewModel", "images ${foodsList}")
             } catch (e: Exception) {
-                // Handle error (e.g., set a default image or log the error)
                 foodImage.value = "error"
             }
         }

@@ -1,8 +1,10 @@
 package com.example.graduationproject.uix.views
 
+import android.util.Log
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -55,10 +57,12 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.graduationproject.R
 import com.example.graduationproject.data.entities.AddCartRequest
+import com.example.graduationproject.data.entities.Carts
 import com.example.graduationproject.data.entities.Foods
 import com.example.graduationproject.ui.theme.PeachText
 import com.example.graduationproject.ui.theme.poppinsMedium
 import com.example.graduationproject.uix.viewmodel.CartPageViewModel
+import com.example.graduationproject.uix.viewmodel.DetailsPageViewModel
 import com.example.graduationproject.uix.viewmodel.HomePageViewModel
 import com.google.gson.Gson
 import com.skydoves.landscapist.glide.GlideImage
@@ -70,7 +74,8 @@ import kotlinx.coroutines.launch
 fun HomePage(
     navController: NavController,
     homePageViewModel: HomePageViewModel,
-    cartPageViewModel: CartPageViewModel
+    cartPageViewModel: CartPageViewModel,
+    detailsPageViewModel: DetailsPageViewModel
 ) {
 
     val foodsList by homePageViewModel.foodsList.observeAsState(listOf())
@@ -138,6 +143,7 @@ fun HomePage(
                     foodsList = foodsList,
                     homePageViewModel = homePageViewModel,
                     cartPageViewModel = cartPageViewModel,
+                    detailsPageViewModel = detailsPageViewModel,
                     navController = navController,
                     snackbarHostState = snackbarHostState,
                     scope = scope
@@ -209,6 +215,7 @@ fun RecommendedSection(
     foodsList: List<Foods>,
     homePageViewModel: HomePageViewModel,
     cartPageViewModel: CartPageViewModel,
+    detailsPageViewModel: DetailsPageViewModel,
     navController: NavController,
     snackbarHostState: SnackbarHostState,
     scope: CoroutineScope
@@ -230,6 +237,7 @@ fun RecommendedSection(
                         food = foodsList[index],
                         homePageViewModel = homePageViewModel,
                         cartPageViewModel = cartPageViewModel,
+                        detailsPageViewModel = detailsPageViewModel,
                         navController = navController,
                         snackbarHostState = snackbarHostState,
                         scope = scope
@@ -246,6 +254,7 @@ fun FoodItem(
     food: Foods,
     homePageViewModel: HomePageViewModel,
     cartPageViewModel: CartPageViewModel,
+    detailsPageViewModel: DetailsPageViewModel,
     navController: NavController,
     snackbarHostState: SnackbarHostState,
     scope: CoroutineScope
@@ -259,6 +268,8 @@ fun FoodItem(
 
     val username = "elif_okumus"
 
+    var order_count = remember { mutableStateOf(0) }
+
     LaunchedEffect(food.food_picName) {
         homePageViewModel.getFoodImage(food.food_picName)
     }
@@ -266,9 +277,10 @@ fun FoodItem(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .aspectRatio(0.8f)
+            .aspectRatio(0.7f)
             .clickable {
                 val foodJson = Gson().toJson(food)
+                detailsPageViewModel.orderCount = order_count.value
                 navController.navigate("detailsPage/$foodJson")
             },
         shape = MaterialTheme.shapes.large,
@@ -278,8 +290,16 @@ fun FoodItem(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(8.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+
         ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                Text(text = "${order_count.value}", fontFamily = poppinsMedium, fontSize = 20.sp)
+            }
             GlideImage(
                 imageModel = "http://kasimadalan.pe.hu/yemekler/resimler/${food.food_picName}",
                 modifier = Modifier
@@ -293,7 +313,7 @@ fun FoodItem(
                 horizontalArrangement = Arrangement.SpaceAround,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column {
+                Column{
                     Text(
                         text = food.food_name,
                         fontWeight = FontWeight.Bold,
@@ -322,16 +342,24 @@ fun FoodItem(
                                 isPlaying = true
                                 progress = 0f
 
+                                order_count.value += 1
+
                                 val cartRequest = AddCartRequest(
                                     food_name = food.food_name,
                                     food_picName = food.food_picName,
                                     food_price = food.food_price,
-                                    cart_order_count = 1,
+                                    cart_order_count = order_count.value,
                                     username = username
                                 )
+
+                                Log.e(
+                                    "CartPageViewModel",
+                                    "Adding to cart: food_name=${cartRequest.food_name}, food_picName=${cartRequest.food_picName}, food_price=${cartRequest.food_price}, cart_order_count=${cartRequest.cart_order_count}, username=${cartRequest.username}"
+                                )
+
                                 cartPageViewModel.addToCart(cartRequest)
 
-                                // Trigger Snackbar
+
                                 scope.launch {
                                     snackbarHostState.showSnackbar("${food.food_name} added to cart.")
                                 }

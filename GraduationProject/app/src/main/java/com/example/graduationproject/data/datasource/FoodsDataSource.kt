@@ -21,16 +21,15 @@ class FoodsDataSource (var foodsdao : FoodsDao){
     }
 
     suspend fun addToCart(addCartRequest: AddCartRequest): CRUDResponse = withContext(Dispatchers.IO) {
-        foodsdao.addToCart(addCartRequest)
+        return@withContext foodsdao.addToCart(addCartRequest)
     }
 
     suspend fun getCartItems(username: String): List<Carts> = withContext(Dispatchers.IO) {
-        foodsdao.getCartItems(CartRequest(username)).cartItems
+        return@withContext foodsdao.getCartItems(username).cartItems
     }
 
     suspend fun removeFromCart(cartItemId: Int, username: String): CRUDResponse = withContext(Dispatchers.IO) {
-        foodsdao.removeFromCart(RemoveCartRequest(cartItemId, username))
+        return@withContext foodsdao.removeFromCart(RemoveCartRequest(cartItemId, username))
     }
-
 
 }

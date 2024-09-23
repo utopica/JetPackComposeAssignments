@@ -1,5 +1,6 @@
 package com.example.graduationproject.uix.views
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -42,7 +43,8 @@ import com.skydoves.landscapist.glide.GlideImage
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CartPage(navController: NavController, cartPageViewModel: CartPageViewModel) {
-    val cartItems by cartPageViewModel.cartItems.observeAsState(listOf())
+    val cartItems by cartPageViewModel.cartItems.observeAsState(emptyList())
+    Log.e("CartPage", "Item did not add to cart: ${cartItems}")
     val username = "elif_okumus"
     var error by remember { mutableStateOf<String?>(null) }
 
@@ -52,6 +54,7 @@ fun CartPage(navController: NavController, cartPageViewModel: CartPageViewModel)
         } catch (e: Exception) {
             e.printStackTrace()
             error = "Failed to fetch cart items"
+            Log.e("CartPage", "Failed to fetch cart items")
         }
     }
 
@@ -68,8 +71,10 @@ fun CartPage(navController: NavController, cartPageViewModel: CartPageViewModel)
         }
     ) { paddingValues ->
         if (cartItems.isNullOrEmpty()) {
+            Log.e("CartPage", "Cart is empty or data is not loaded")
             Text("Your cart is empty", modifier = Modifier.padding(16.dp))
         } else {
+            Log.e("CartPage", "Cart items loaded: ${cartItems.size}")
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -80,6 +85,10 @@ fun CartPage(navController: NavController, cartPageViewModel: CartPageViewModel)
                     CartItemCard(cartItem, cartPageViewModel, username)
                 }
             }
+        }
+
+        error?.let {
+            Text(text = it, color = Color.Red, modifier = Modifier.padding(16.dp))
         }
 
     }

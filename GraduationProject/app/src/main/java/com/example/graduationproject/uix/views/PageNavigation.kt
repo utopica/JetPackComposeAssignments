@@ -23,7 +23,7 @@ fun PageNavigation(
 
     NavHost(navController = navController, startDestination = "homepage") {
         composable("homepage"){
-            HomePage(navController, homePageViewModel, cartPageViewModel)
+            HomePage(navController, homePageViewModel, cartPageViewModel, detailsPageViewModel)
         }
 
         composable("cartPage"){
@@ -33,12 +33,12 @@ fun PageNavigation(
         composable(
             "detailsPage/{food}",
             arguments = listOf(
-                navArgument("food") { type = NavType.StringType }
+                navArgument("food") { type = NavType.StringType },
             )
         ){
             val json = it.arguments?.getString("food")
-            val nesne = Gson().fromJson(json,Foods::class.java)
-            DetailsPage(nesne, detailsPageViewModel)
+            val foodObject  = Gson().fromJson(json,Foods::class.java)
+            DetailsPage(food = foodObject, detailsPageViewModel = detailsPageViewModel)
         }
     }
 }

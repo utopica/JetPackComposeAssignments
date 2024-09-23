@@ -7,5 +7,5 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DetailsPageViewModel @Inject constructor(var foodsRepo : FoodsRepository) : ViewModel(){
-
+    var orderCount = 0
 }
