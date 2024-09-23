@@ -1,27 +1,21 @@
 package com.example.graduationproject.uix.views
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -42,18 +36,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.graduationproject.data.entities.AddCartRequest
 import com.example.graduationproject.data.entities.Foods
 import com.example.graduationproject.ui.theme.Peach
 import com.example.graduationproject.ui.theme.PeachContainer
 import com.example.graduationproject.ui.theme.poppinsMedium
 import com.example.graduationproject.ui.theme.poppinsMediumBold
+import com.example.graduationproject.uix.viewmodel.CartPageViewModel
 import com.example.graduationproject.uix.viewmodel.DetailsPageViewModel
 import com.skydoves.landscapist.glide.GlideImage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetailsPage(navController: NavController, food: Foods, detailsPageViewModel: DetailsPageViewModel) {
-    var orderCountDetail = remember { mutableStateOf(1) }
+fun DetailsPage(navController: NavController, food: Foods, orderCount: Int, detailsPageViewModel: DetailsPageViewModel, cartPageViewModel: CartPageViewModel,) {
+
+    var currentOrderCount = remember { mutableStateOf(orderCount) }
 
     Scaffold(
         topBar = {
@@ -135,7 +132,7 @@ fun DetailsPage(navController: NavController, food: Foods, detailsPageViewModel:
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(
-                        onClick = { if (orderCountDetail.value > 1) orderCountDetail.value-- },
+                        onClick = { if (currentOrderCount.value > 1) currentOrderCount.value-- },
                         modifier = Modifier
                             .background(Peach.copy(alpha = 0.3f), CircleShape)
                             .size(56.dp)
@@ -144,13 +141,13 @@ fun DetailsPage(navController: NavController, food: Foods, detailsPageViewModel:
                     }
 
                     Text(
-                        text = "${orderCountDetail.value}",
+                        text = "${currentOrderCount.value}",
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold
                     )
 
                     IconButton(
-                        onClick = { orderCountDetail.value++ },
+                        onClick = { currentOrderCount.value++ },
                         modifier = Modifier
                             .background(Peach.copy(alpha = 0.3f), CircleShape)
                             .size(56.dp)
@@ -177,7 +174,23 @@ fun DetailsPage(navController: NavController, food: Foods, detailsPageViewModel:
 
                     IconButton(
                         onClick = {
-                            
+
+                            val cartRequest = AddCartRequest(
+                                food_name = food.food_name,
+                                food_picName = food.food_picName,
+                                food_price = food.food_price,
+                                cart_order_count = currentOrderCount.value,
+                                username = "elif_okumus"
+                            )
+
+                            Log.e(
+                                "CartPageViewModel",
+                                "Adding to cart: food_name=${cartRequest.food_name}, food_picName=${cartRequest.food_picName}, food_price=${cartRequest.food_price}, cart_order_count=${cartRequest.cart_order_count}, username=${cartRequest.username}"
+                            )
+
+                            cartPageViewModel.addToCart(cartRequest)
+
+
                         },
                         modifier = Modifier
                             .size(62.dp)

@@ -57,10 +57,8 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.graduationproject.R
 import com.example.graduationproject.data.entities.AddCartRequest
-import com.example.graduationproject.data.entities.Carts
 import com.example.graduationproject.data.entities.Foods
 import com.example.graduationproject.ui.theme.Orange
-import com.example.graduationproject.ui.theme.Peach
 import com.example.graduationproject.ui.theme.PeachContainer
 import com.example.graduationproject.ui.theme.poppinsMedium
 import com.example.graduationproject.uix.viewmodel.CartPageViewModel
@@ -284,7 +282,7 @@ fun FoodItem(
             .clickable {
                 val foodJson = Gson().toJson(food)
                 detailsPageViewModel.orderCount = order_count.value
-                navController.navigate("detailsPage/$foodJson")
+                navController.navigate("detailsPage/$foodJson/${order_count.value}")
             },
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(containerColor = Color.White)

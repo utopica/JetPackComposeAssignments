@@ -31,14 +31,16 @@ fun PageNavigation(
         }
 
         composable(
-            "detailsPage/{food}",
+            "detailsPage/{food}/{orderCount}",
             arguments = listOf(
                 navArgument("food") { type = NavType.StringType },
+                navArgument("orderCount") { type = NavType.IntType }
             )
         ){
             val json = it.arguments?.getString("food")
             val foodObject  = Gson().fromJson(json,Foods::class.java)
-            DetailsPage(navController = navController, food = foodObject, detailsPageViewModel = detailsPageViewModel)
+            val orderCount = it.arguments?.getInt("orderCount") ?: 0
+            DetailsPage(navController = navController, food = foodObject,  orderCount = orderCount, detailsPageViewModel = detailsPageViewModel, cartPageViewModel = cartPageViewModel)
         }
     }
 }
