@@ -10,5 +10,6 @@ val Purple40 = Color(0xFF6650a4)
 val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
-val Peach = Color(0xFFE6C7BA)
-val PeachText = Color(0xFFE17431)
+val PeachContainer = Color(0xFFf9f3ed)
+val Orange = Color(0xFFE17431)
+val Peach = Color(0xFFFBB173)

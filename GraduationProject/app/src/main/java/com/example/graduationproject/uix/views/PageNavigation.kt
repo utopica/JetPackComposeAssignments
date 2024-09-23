@@ -38,7 +38,7 @@ fun PageNavigation(
         ){
             val json = it.arguments?.getString("food")
             val foodObject  = Gson().fromJson(json,Foods::class.java)
-            DetailsPage(food = foodObject, detailsPageViewModel = detailsPageViewModel)
+            DetailsPage(navController = navController, food = foodObject, detailsPageViewModel = detailsPageViewModel)
         }
     }
 }

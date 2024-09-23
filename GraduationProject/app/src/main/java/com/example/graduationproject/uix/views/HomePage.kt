@@ -59,7 +59,9 @@ import com.example.graduationproject.R
 import com.example.graduationproject.data.entities.AddCartRequest
 import com.example.graduationproject.data.entities.Carts
 import com.example.graduationproject.data.entities.Foods
-import com.example.graduationproject.ui.theme.PeachText
+import com.example.graduationproject.ui.theme.Orange
+import com.example.graduationproject.ui.theme.Peach
+import com.example.graduationproject.ui.theme.PeachContainer
 import com.example.graduationproject.ui.theme.poppinsMedium
 import com.example.graduationproject.uix.viewmodel.CartPageViewModel
 import com.example.graduationproject.uix.viewmodel.DetailsPageViewModel
@@ -92,7 +94,7 @@ fun HomePage(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier.padding(16.dp).background(PeachContainer),
                 title = {
                     SearchBar(
                         searchQuery = searchQuery,
@@ -106,7 +108,7 @@ fun HomePage(
                     IconButton(onClick = { }) {
                         Icon(
                             painterResource(id = R.drawable.menu),
-                            modifier = Modifier.size(24.dp),
+                            modifier = Modifier.size(24.dp).background(PeachContainer),
                             contentDescription = "Menu"
                         )
                     }
@@ -115,7 +117,7 @@ fun HomePage(
                     IconButton(onClick = { }) {
                         Icon(
                             painterResource(id = R.drawable.filter),
-                            modifier = Modifier.size(24.dp),
+                            modifier = Modifier.size(24.dp).background(PeachContainer),
                             contentDescription = "Filter"
                         )
                     }
@@ -124,7 +126,8 @@ fun HomePage(
         },
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState)
-        }
+        },
+        containerColor = PeachContainer
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
@@ -184,7 +187,7 @@ fun DiscountCard() {
             .fillMaxWidth()
             .aspectRatio(2.5f),
         shape = MaterialTheme.shapes.medium,
-        colors = CardDefaults.cardColors(containerColor = PeachText, contentColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = Orange, contentColor = Color.White)
     ) {
         Row(
             modifier = Modifier
