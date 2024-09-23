@@ -4,9 +4,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.graduationproject.data.entities.AddCartRequest
 import com.example.graduationproject.data.entities.CRUDResponse
-import com.example.graduationproject.data.entities.CartRequest
 import com.example.graduationproject.data.entities.Carts
 import com.example.graduationproject.data.repo.FoodsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,13 +22,21 @@ class CartPageViewModel @Inject constructor(var foodsRepo : FoodsRepository) : V
     val _cartOperationResult = MutableLiveData<CRUDResponse>()
     val cartOperationResult: LiveData<CRUDResponse> = _cartOperationResult
 
-    fun addToCart(cartRequest: AddCartRequest) {
+    fun addToCart(cart: Carts) {
         CoroutineScope(Dispatchers.Main).launch {
-            Log.e("CartPageViewModel", "Adding to cart: $cartRequest")
+            Log.e("CartPageViewModel", "Adding to cart: $cart")
 
-            val result = foodsRepo.addToCart(cartRequest)
+            val requestMap = mapOf(
+                "yemek_adi" to cart.food_name,
+                "yemek_resim_adi" to cart.food_picName,
+                "yemek_fiyat" to cart.food_price.toString(),
+                "yemek_siparis_adet" to cart.cart_order_count.toString(),
+                "kullanici_adi" to cart.username
+            )
+
+            val result = foodsRepo.addToCart(requestMap)
+
             _cartOperationResult.value = result
-            getCartItems(cartRequest.username)
 
             Log.e("CartPageViewModel", "API Response: success=${result.success}, message=${result.message}")
 

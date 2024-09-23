@@ -25,6 +25,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -37,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.graduationproject.data.entities.AddCartRequest
+import com.example.graduationproject.data.entities.Carts
 import com.example.graduationproject.data.entities.Foods
 import com.example.graduationproject.ui.theme.Peach
 import com.example.graduationproject.ui.theme.PeachContainer
@@ -44,13 +47,16 @@ import com.example.graduationproject.ui.theme.poppinsMedium
 import com.example.graduationproject.ui.theme.poppinsMediumBold
 import com.example.graduationproject.uix.viewmodel.CartPageViewModel
 import com.example.graduationproject.uix.viewmodel.DetailsPageViewModel
+import com.google.gson.Gson
 import com.skydoves.landscapist.glide.GlideImage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetailsPage(navController: NavController, food: Foods, orderCount: Int, detailsPageViewModel: DetailsPageViewModel, cartPageViewModel: CartPageViewModel,) {
+fun DetailsPage(navController: NavController, food: Foods, orderCount: Int, detailsPageViewModel: DetailsPageViewModel, cartPageViewModel: CartPageViewModel) {
 
     var currentOrderCount = remember { mutableStateOf(orderCount) }
+
+    val username = "elif_okumus"
 
     Scaffold(
         topBar = {
@@ -174,23 +180,9 @@ fun DetailsPage(navController: NavController, food: Foods, orderCount: Int, deta
 
                     IconButton(
                         onClick = {
-
-                            val cartRequest = AddCartRequest(
-                                food_name = food.food_name,
-                                food_picName = food.food_picName,
-                                food_price = food.food_price,
-                                cart_order_count = currentOrderCount.value,
-                                username = "elif_okumus"
+                            navController.navigate(
+                                "cartPage/${food.food_name}/${food.food_picName}/${food.food_price}/${currentOrderCount.value}/${username}"
                             )
-
-                            Log.e(
-                                "DetailsPage",
-                                "Adding to cart: food_name=${cartRequest.food_name}, food_picName=${cartRequest.food_picName}, food_price=${cartRequest.food_price}, cart_order_count=${cartRequest.cart_order_count}, username=${cartRequest.username}"
-                            )
-
-                            cartPageViewModel.addToCart(cartRequest)
-
-
                         },
                         modifier = Modifier
                             .size(62.dp)

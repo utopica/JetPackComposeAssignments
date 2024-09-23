@@ -15,7 +15,7 @@ import javax.inject.Inject
 class HomePageViewModel @Inject constructor(var foodsRepo : FoodsRepository) : ViewModel() {
 
     var foodsList = MutableLiveData<List<Foods>>()
-    
+
     init {
         getFoods()
     }

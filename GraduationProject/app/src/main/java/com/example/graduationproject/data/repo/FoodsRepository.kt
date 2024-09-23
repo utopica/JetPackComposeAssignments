@@ -10,7 +10,7 @@ class FoodsRepository (var foodsDataSource: FoodsDataSource) {
 
     suspend fun getFoods(): List<Foods> = foodsDataSource.getFoods()
 
-    suspend fun addToCart(addCartRequest: AddCartRequest): CRUDResponse = foodsDataSource.addToCart(addCartRequest)
+    suspend fun addToCart(cartItem: Map<String, String>): CRUDResponse = foodsDataSource.addToCart(cartItem)
 
     suspend fun getCartItems(username: String): List<Carts> = foodsDataSource.getCartItems(username)
 

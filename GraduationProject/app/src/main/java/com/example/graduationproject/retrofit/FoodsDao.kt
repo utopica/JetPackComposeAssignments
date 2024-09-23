@@ -4,9 +4,12 @@ import com.example.graduationproject.data.entities.AddCartRequest
 import com.example.graduationproject.data.entities.CRUDResponse
 import com.example.graduationproject.data.entities.CartRequest
 import com.example.graduationproject.data.entities.CartResponse
+import com.example.graduationproject.data.entities.Carts
 import com.example.graduationproject.data.entities.FoodsResponse
 import com.example.graduationproject.data.entities.RemoveCartRequest
 import retrofit2.http.Body
+import retrofit2.http.FieldMap
+import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Query
@@ -19,11 +22,13 @@ interface FoodsDao {
     suspend fun getFoods() : FoodsResponse
 
     @POST("yemekler/sepeteYemekEkle.php")
-    suspend fun addToCart(@Body addCartRequest: AddCartRequest): CRUDResponse
+    @FormUrlEncoded
+    suspend fun addToCart(@FieldMap fields: Map<String, String>): CRUDResponse
 
     @GET("yemekler/sepettekiYemekleriGetir.php")
     suspend fun getCartItems(@Query("kullanici_adi") username: String): CartResponse
 
     @POST("yemekler/sepettenYemekSil.php")
+    @FormUrlEncoded
     suspend fun removeFromCart(@Body request: RemoveCartRequest): CRUDResponse
 }

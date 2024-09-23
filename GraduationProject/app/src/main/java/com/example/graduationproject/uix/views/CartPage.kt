@@ -36,26 +36,41 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.graduationproject.data.entities.AddCartRequest
 import com.example.graduationproject.data.entities.Carts
 import com.example.graduationproject.uix.viewmodel.CartPageViewModel
 import com.skydoves.landscapist.glide.GlideImage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CartPage(navController: NavController, cartPageViewModel: CartPageViewModel) {
-    val cartItems by cartPageViewModel.cartItems.observeAsState(emptyList())
+fun CartPage(
+    navController: NavController,
+    cartPageViewModel: CartPageViewModel,
+    foodName: String,
+    foodPicName: String,
+    foodPrice: Int,
+    orderCount: Int,
+    username : String
+) {
+
+    val cartItems by cartPageViewModel.cartItems.observeAsState(listOf())
+
     Log.e("CartPage", "Item did not add to cart: ${cartItems}")
-    val username = "elif_okumus"
+
     var error by remember { mutableStateOf<String?>(null) }
 
+
     LaunchedEffect(key1 = true) {
-        try {
-            cartPageViewModel.getCartItems(username)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            error = "Failed to fetch cart items"
-            Log.e("CartPage", "Failed to fetch cart items")
-        }
+        val newCartItem = Carts(
+            cart_food_id = 0,
+            food_name = foodName,
+            food_picName = foodPicName,
+            food_price = foodPrice,
+            cart_order_count = orderCount,
+            username = username
+        )
+
+        cartPageViewModel.addToCart(newCartItem)
     }
 
     Scaffold(

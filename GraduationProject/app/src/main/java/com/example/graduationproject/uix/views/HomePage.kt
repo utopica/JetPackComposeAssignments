@@ -265,9 +265,8 @@ fun FoodItem(
         spec = LottieCompositionSpec.RawRes(R.raw.cart)
     )
     var isPlaying by remember { mutableStateOf(false) }
-    var progress by remember { mutableStateOf(0f) }
 
-    val username = "elif_okumus"
+    var progress by remember { mutableStateOf(0f) }
 
     var order_count = remember { mutableStateOf(0) }
 
@@ -341,22 +340,6 @@ fun FoodItem(
                                 progress = 0f
 
                                 order_count.value += 1
-
-                                val cartRequest = AddCartRequest(
-                                    food_name = food.food_name,
-                                    food_picName = food.food_picName,
-                                    food_price = food.food_price,
-                                    cart_order_count = order_count.value,
-                                    username = username
-                                )
-
-                                Log.e(
-                                    "CartPageViewModel",
-                                    "Adding to cart: food_name=${cartRequest.food_name}, food_picName=${cartRequest.food_picName}, food_price=${cartRequest.food_price}, cart_order_count=${cartRequest.cart_order_count}, username=${cartRequest.username}"
-                                )
-
-                                cartPageViewModel.addToCart(cartRequest)
-
 
                                 scope.launch {
                                     snackbarHostState.showSnackbar("${food.food_name} added to cart.")
