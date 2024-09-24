@@ -5,6 +5,7 @@ import com.example.graduationproject.data.entities.CartResponse
 import com.example.graduationproject.data.entities.FoodsResponse
 import com.example.graduationproject.data.entities.RemoveCartRequest
 import retrofit2.http.Body
+import retrofit2.http.Field
 import retrofit2.http.FieldMap
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
@@ -22,8 +23,9 @@ interface FoodsDao {
     @FormUrlEncoded
     suspend fun addToCart(@FieldMap fields: Map<String, String>): CRUDResponse
 
-    @GET("yemekler/sepettekiYemekleriGetir.php")
-    suspend fun getCartItems(@Query("kullanici_adi") username: String): CartResponse
+    @POST("yemekler/sepettekiYemekleriGetir.php")
+    @FormUrlEncoded
+    suspend fun getCartItems(@Field("kullanici_adi") username: String): CartResponse
 
     @POST("yemekler/sepettenYemekSil.php")
     @FormUrlEncoded

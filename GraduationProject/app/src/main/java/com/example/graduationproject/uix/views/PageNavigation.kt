@@ -28,22 +28,12 @@ fun PageNavigation(
             HomePage(navController, homePageViewModel, cartPageViewModel, detailsPageViewModel)
         }
 
-        /*
-        composable("cartPage/cart"){
-            val json = it.arguments?.getString("cart")
-            val cartObject = Gson().fromJson(json, Carts::class.java)
-            CartPage(navController = navController, cart = cartObject, cartPageViewModel = cartPageViewModel)
-        }*/
         composable(
-            "cartPage/{cartItem}",
-            arguments = listOf(navArgument("cartItem") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val json = backStackEntry.arguments?.getString("cartItem")
-            val cartItemObject = Gson().fromJson(json, AddCartItem::class.java)
+            "cartPage"
+        ){
             CartPage(
                 navController = navController,
-                cartPageViewModel = cartPageViewModel,
-                cartItem = cartItemObject
+                cartPageViewModel = cartPageViewModel
             )
         }
 
@@ -58,6 +48,14 @@ fun PageNavigation(
             val foodObject  = Gson().fromJson(json,Foods::class.java)
             val orderCount = it.arguments?.getInt("orderCount") ?: 0
             DetailsPage(navController = navController, food = foodObject,  orderCount = orderCount, detailsPageViewModel = detailsPageViewModel, cartPageViewModel = cartPageViewModel)
+        }
+        
+        composable("searchPage"){
+            SearchPage(navController = navController)
+        }
+
+        composable("profilePage"){
+            ProfilePage(navController = navController)
         }
     }
 }

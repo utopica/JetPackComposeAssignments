@@ -18,7 +18,7 @@ class FoodsDataSource (var foodsdao : FoodsDao){
     }
 
     suspend fun getCartItems(username: String): List<Carts> = withContext(Dispatchers.IO) {
-        return@withContext foodsdao.getCartItems(username).cartItems
+        return@withContext foodsdao.getCartItems(username).cartItems!!
     }
 
     suspend fun removeFromCart(cartItemId: Int, username: String): CRUDResponse = withContext(Dispatchers.IO) {

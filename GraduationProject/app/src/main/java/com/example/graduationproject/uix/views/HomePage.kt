@@ -20,7 +20,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -28,6 +27,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -55,6 +55,7 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.graduationproject.R
+import com.example.graduationproject.data.entities.Carts
 import com.example.graduationproject.data.entities.Foods
 import com.example.graduationproject.ui.theme.Orange
 import com.example.graduationproject.ui.theme.PeachContainer
@@ -90,7 +91,9 @@ fun HomePage(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                modifier = Modifier.padding(16.dp).background(PeachContainer),
+                modifier = Modifier
+                    .padding(16.dp)
+                    .background(PeachContainer),
                 title = {
                     SearchBar(
                         searchQuery = searchQuery,
@@ -104,7 +107,9 @@ fun HomePage(
                     IconButton(onClick = { }) {
                         Icon(
                             painterResource(id = R.drawable.menu),
-                            modifier = Modifier.size(24.dp).background(PeachContainer),
+                            modifier = Modifier
+                                .size(24.dp)
+                                .background(PeachContainer),
                             contentDescription = "Menu"
                         )
                     }
@@ -113,7 +118,9 @@ fun HomePage(
                     IconButton(onClick = { }) {
                         Icon(
                             painterResource(id = R.drawable.filter),
-                            modifier = Modifier.size(24.dp).background(PeachContainer),
+                            modifier = Modifier
+                                .size(24.dp)
+                                .background(PeachContainer),
                             contentDescription = "Filter"
                         )
                     }
@@ -123,7 +130,10 @@ fun HomePage(
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState)
         },
-        containerColor = PeachContainer
+        containerColor = PeachContainer,
+        bottomBar = {
+            BottomNavigationBar(navController = navController)
+        }
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
@@ -147,12 +157,6 @@ fun HomePage(
                     snackbarHostState = snackbarHostState,
                     scope = scope
                 )
-            }
-
-            item {
-                IconButton(onClick = { navController.navigate("cartPage") }) {
-                    Icon(Icons.Default.ShoppingCart, contentDescription = "Go to Cart")
-                }
             }
         }
 
@@ -268,6 +272,7 @@ fun FoodItem(
 
     var order_count = remember { mutableStateOf(0) }
 
+    val username = "elif_okumus"
 
     Card(
         modifier = Modifier
@@ -287,12 +292,12 @@ fun FoodItem(
                 .padding(8.dp),
             verticalArrangement = Arrangement.spacedBy(2.dp),
 
-        ) {
+            ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
-            ){
+            ) {
                 Text(text = "${order_count.value}", fontFamily = poppinsMedium, fontSize = 20.sp)
             }
             GlideImage(
@@ -308,7 +313,7 @@ fun FoodItem(
                 horizontalArrangement = Arrangement.SpaceAround,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column{
+                Column {
                     Text(
                         text = food.food_name,
                         fontWeight = FontWeight.Bold,
@@ -334,6 +339,18 @@ fun FoodItem(
                         modifier = Modifier
                             .size(70.dp)
                             .clickable {
+
+                                val cartItem = Carts(
+                                    cart_food_id = 0,
+                                    food_name = food.food_name,
+                                    food_picName = food.food_picName,
+                                    food_price = food.food_price,
+                                    cart_order_count = order_count.value,
+                                    username = username
+                                )
+
+                                cartPageViewModel.addToCart(cartItem)
+
                                 isPlaying = true
                                 progress = 0f
 
@@ -362,5 +379,50 @@ fun FoodItem(
     }
 }
 
+@Composable
+fun BottomNavigationBar(navController: NavController) {
 
+    val selectedNavIndex = remember { mutableStateOf(0) }
 
+    NavigationBar(
+        containerColor = PeachContainer,
+        modifier = Modifier.height(80.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            val navigationItems = listOf(
+                painterResource(id = R.drawable.home) to "Home",
+                painterResource(id = R.drawable.search) to "Search",
+                painterResource(id = R.drawable.cart) to "Cart",
+                painterResource(id = R.drawable.user) to "Profile",
+            )
+
+            navigationItems.forEachIndexed { index, (icon, contentDescription) ->
+                IconButton(
+                    onClick = {
+                        selectedNavIndex.value = index
+
+                        when (index) {
+                            0 -> navController.navigate("homePage")
+                            1 -> navController.navigate("searchPage")
+                            2 -> navController.navigate("cartPage")
+                            3 -> navController.navigate("profilePage")
+                        }
+                    }
+                ) {
+                    Icon(
+                        painter = icon,
+                        contentDescription = contentDescription,
+                        tint = if (selectedNavIndex.value == index) Orange else Color.Black,
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
+            }
+        }
+    }
+}

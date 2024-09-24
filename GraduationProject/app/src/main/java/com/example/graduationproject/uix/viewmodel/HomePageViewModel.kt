@@ -23,9 +23,6 @@ class HomePageViewModel @Inject constructor(var foodsRepo : FoodsRepository) : V
     fun getFoods(){
         CoroutineScope(Dispatchers.Main).launch {
             foodsList.value = foodsRepo.getFoods()
-
-            Log.e("HomePageViewModel", " images ${foodsList.value}")
-
         }
     }
 }

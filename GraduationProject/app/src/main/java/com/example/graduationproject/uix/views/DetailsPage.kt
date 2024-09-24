@@ -1,5 +1,6 @@
 package com.example.graduationproject.uix.views
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,15 +35,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.graduationproject.data.entities.AddCartItem
+import com.example.graduationproject.data.entities.Carts
 import com.example.graduationproject.data.entities.Foods
+import com.example.graduationproject.ui.theme.Brown
 import com.example.graduationproject.ui.theme.Peach
 import com.example.graduationproject.ui.theme.PeachContainer
 import com.example.graduationproject.ui.theme.poppinsMedium
 import com.example.graduationproject.ui.theme.poppinsMediumBold
 import com.example.graduationproject.uix.viewmodel.CartPageViewModel
 import com.example.graduationproject.uix.viewmodel.DetailsPageViewModel
-import com.google.gson.Gson
 import com.skydoves.landscapist.glide.GlideImage
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -161,7 +162,7 @@ fun DetailsPage(navController: NavController, food: Foods, orderCount: Int, deta
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(80.dp)
-                        .background(Color.Black, RoundedCornerShape(40.dp))
+                        .background(Brown, RoundedCornerShape(40.dp))
                         .padding(horizontal = 24.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
@@ -176,19 +177,19 @@ fun DetailsPage(navController: NavController, food: Foods, orderCount: Int, deta
                     IconButton(
                         onClick = {
 
-                            val cartItem = AddCartItem(
+                            val cartItem = Carts(
+                                cart_food_id = 0,
                                 food_name = food.food_name,
                                 food_picName = food.food_picName,
                                 food_price = food.food_price,
                                 cart_order_count = currentOrderCount.value,
                                 username = username
                             )
+                            cartPageViewModel.addToCart(cartItem)
 
-                            val cartJson = Gson().toJson(cartItem)
+                            Log.e("Details", "Cart : ${cartItem}")
+                            cartPageViewModel.addToCart(cartItem)
 
-                            navController.navigate(
-                                "cartPage/${cartJson}"
-                            )
                         },
                         modifier = Modifier
                             .size(62.dp)
@@ -197,7 +198,7 @@ fun DetailsPage(navController: NavController, food: Foods, orderCount: Int, deta
                         Icon(
                             imageVector = Icons.Default.ShoppingCart,
                             contentDescription = "Add to Cart",
-                            tint = Color.Black,
+                            tint = Brown,
                             modifier = Modifier.size(32.dp)
                         )
                     }
