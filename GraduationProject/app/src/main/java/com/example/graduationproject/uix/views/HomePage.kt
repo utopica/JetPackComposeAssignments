@@ -4,7 +4,9 @@ import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
@@ -26,6 +29,7 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.Scaffold
@@ -33,6 +37,8 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -59,6 +65,7 @@ import com.example.graduationproject.data.entities.Carts
 import com.example.graduationproject.data.entities.Foods
 import com.example.graduationproject.ui.theme.Orange
 import com.example.graduationproject.ui.theme.PeachContainer
+import com.example.graduationproject.ui.theme.PeachSearch
 import com.example.graduationproject.ui.theme.poppinsMedium
 import com.example.graduationproject.uix.viewmodel.CartPageViewModel
 import com.example.graduationproject.uix.viewmodel.DetailsPageViewModel
@@ -92,15 +99,13 @@ fun HomePage(
         topBar = {
             CenterAlignedTopAppBar(
                 modifier = Modifier
-                    .padding(16.dp)
-                    .background(PeachContainer),
+                    .padding(2.dp, 5.dp),
                 title = {
                     SearchBar(
                         searchQuery = searchQuery,
                         onSearchQueryChange = { searchQuery = it },
                         modifier = Modifier
                             .fillMaxWidth(0.9f)
-                            .height(40.dp)
                     )
                 },
                 navigationIcon = {
@@ -108,8 +113,7 @@ fun HomePage(
                         Icon(
                             painterResource(id = R.drawable.menu),
                             modifier = Modifier
-                                .size(24.dp)
-                                .background(PeachContainer),
+                                .size(24.dp),
                             contentDescription = "Menu"
                         )
                     }
@@ -119,12 +123,13 @@ fun HomePage(
                         Icon(
                             painterResource(id = R.drawable.filter),
                             modifier = Modifier
-                                .size(24.dp)
-                                .background(PeachContainer),
+                                .size(24.dp),
                             contentDescription = "Filter"
                         )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = PeachContainer)
+
             )
         },
         snackbarHost = {
@@ -163,6 +168,7 @@ fun HomePage(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchBar(
     searchQuery: String,
@@ -172,11 +178,23 @@ fun SearchBar(
     TextField(
         value = searchQuery,
         onValueChange = onSearchQueryChange,
-        modifier = modifier,
-        placeholder = { Text("Search") },
+        modifier = modifier
+            .height(40.dp)
+            .border(width = 1.dp, color = Color.Gray, shape = RoundedCornerShape(16.dp))
+            .padding(vertical = 0.dp),
+        colors = TextFieldDefaults.textFieldColors(
+            containerColor = PeachContainer,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+        ),
+        placeholder = { },
         leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
         singleLine = true,
-        shape = MaterialTheme.shapes.medium
+        shape = MaterialTheme.shapes.medium,
+        textStyle = LocalTextStyle.current.copy(
+            color = Color.Black,
+            fontSize = 5.sp
+        )
     )
 }
 
@@ -270,7 +288,7 @@ fun FoodItem(
 
     var progress by remember { mutableStateOf(0f) }
 
-    var order_count = remember { mutableStateOf(0) }
+    var orderCount = remember { mutableStateOf(0) }
 
     val username = "elif_okumus"
 
@@ -280,8 +298,8 @@ fun FoodItem(
             .aspectRatio(0.7f)
             .clickable {
                 val foodJson = Gson().toJson(food)
-                detailsPageViewModel.orderCount = order_count.value
-                navController.navigate("detailsPage/$foodJson/${order_count.value}")
+                detailsPageViewModel.orderCount = orderCount.value
+                navController.navigate("detailsPage/$foodJson/${orderCount.value}")
             },
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(containerColor = Color.White)
@@ -298,7 +316,9 @@ fun FoodItem(
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "${order_count.value}", fontFamily = poppinsMedium, fontSize = 20.sp)
+                if (orderCount.value > 0) {
+                    Text(text = "${orderCount.value}", fontFamily = poppinsMedium, fontSize = 20.sp)
+                }
             }
             GlideImage(
                 imageModel = "http://kasimadalan.pe.hu/yemekler/resimler/${food.food_picName}",
@@ -337,15 +357,16 @@ fun FoodItem(
                     LottieAnimation(
                         composition = composition,
                         modifier = Modifier
-                            .size(70.dp)
+                            .size(50.dp)
                             .clickable {
+                                orderCount.value += 1
 
                                 val cartItem = Carts(
                                     cart_food_id = 0,
                                     food_name = food.food_name,
                                     food_picName = food.food_picName,
                                     food_price = food.food_price,
-                                    cart_order_count = order_count.value,
+                                    cart_order_count = orderCount.value,
                                     username = username
                                 )
 
@@ -353,8 +374,6 @@ fun FoodItem(
 
                                 isPlaying = true
                                 progress = 0f
-
-                                order_count.value += 1
 
                                 scope.launch {
                                     snackbarHostState.showSnackbar("${food.food_name} added to cart.")

@@ -33,7 +33,8 @@ fun PageNavigation(
         ){
             CartPage(
                 navController = navController,
-                cartPageViewModel = cartPageViewModel
+                cartPageViewModel = cartPageViewModel,
+                detailsPageViewModel = detailsPageViewModel
             )
         }
 

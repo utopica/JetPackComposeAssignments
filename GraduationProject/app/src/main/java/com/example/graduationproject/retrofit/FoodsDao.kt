@@ -17,7 +17,7 @@ interface FoodsDao {
     //yemekler/tumYemekleriGetir.php -> apiUrl
 
     @GET("yemekler/tumYemekleriGetir.php")
-    suspend fun getFoods() : FoodsResponse
+    suspend fun getFoods(): FoodsResponse
 
     @POST("yemekler/sepeteYemekEkle.php")
     @FormUrlEncoded
@@ -29,5 +29,8 @@ interface FoodsDao {
 
     @POST("yemekler/sepettenYemekSil.php")
     @FormUrlEncoded
-    suspend fun removeFromCart(@Body request: RemoveCartRequest): CRUDResponse
+    suspend fun removeFromCart(
+        @Field("sepet_yemek_id") cartItemId: Int,
+        @Field("kullanici_adi") username: String
+    ): CRUDResponse
 }

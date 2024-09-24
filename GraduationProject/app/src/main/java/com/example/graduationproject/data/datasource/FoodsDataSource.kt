@@ -22,7 +22,7 @@ class FoodsDataSource (var foodsdao : FoodsDao){
     }
 
     suspend fun removeFromCart(cartItemId: Int, username: String): CRUDResponse = withContext(Dispatchers.IO) {
-        return@withContext foodsdao.removeFromCart(RemoveCartRequest(cartItemId, username))
+        return@withContext foodsdao.removeFromCart(cartItemId, username)
     }
 
 }
