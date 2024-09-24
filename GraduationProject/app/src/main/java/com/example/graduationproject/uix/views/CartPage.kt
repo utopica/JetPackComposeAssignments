@@ -107,7 +107,7 @@ fun CartPage(
                         .weight(1f)
                         .padding(16.dp)
                 ) {
-                    items(cartItems) { item ->
+                    items(cartItems, key = { it.cart_food_id }) { item ->
                         CartItemRow(
                             cartItem = item,
                             onDeleteClick = {
@@ -142,7 +142,7 @@ fun CartPage(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text("Delivery Amount", fontFamily = poppinsMedium)
+                            Text("Delivery Amount", fontSize = 12.sp , fontFamily = poppinsMedium)
                             Box(
                                 modifier = Modifier
                                     .width(100.dp)
@@ -215,7 +215,11 @@ fun CartItemRow(
     navController: NavController,
 ) {
 
-    var orderCount by remember { mutableStateOf(cartItem.cart_order_count) }
+    var orderCount by remember(cartItem.cart_food_id) { mutableStateOf(cartItem.cart_order_count) }
+
+    LaunchedEffect(key1 = true) {
+        cartPageViewModel.getCartItems(cartItem.username)
+    }
 
     Row(
         modifier = Modifier
@@ -263,12 +267,11 @@ fun CartItemRow(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(
-                    onClick = { if (orderCount > 0) {
-                        orderCount--
-                        cartPageViewModel.updateCartItemCount(cartItem, orderCount, cartItem.food_name, cartItem.cart_order_count)
-                    }else{
-                        onDeleteClick()
-                    }
+                    onClick = {
+                        if (orderCount > 1) orderCount--
+
+                        updateCart(cartPageViewModel, cartItem, orderCount)
+
                     },
                     modifier = Modifier
                         .background(Peach.copy(alpha = 0.3f), CircleShape)
@@ -278,14 +281,16 @@ fun CartItemRow(
                 }
 
                 Text(
-                    text = "$orderCount",
+                    text = "${orderCount}",
                     fontWeight = FontWeight.Bold
                 )
 
                 IconButton(
                     onClick = {
                         orderCount++
-                        cartPageViewModel.updateCartItemCount(cartItem, orderCount, cartItem.food_name,cartItem.cart_order_count)
+
+                        updateCart(cartPageViewModel, cartItem, orderCount)
+
                     },
                     modifier = Modifier
                         .background(Peach.copy(alpha = 0.3f), CircleShape)
@@ -324,4 +329,11 @@ fun CartItemRow(
         }
 
     }
+}
+
+private fun updateCart(cartPageViewModel: CartPageViewModel, cartItem: Carts, newCount: Int) {
+    val changeInCount = newCount - cartItem.cart_order_count
+    val updatedCartItem = cartItem.copy(cart_order_count = changeInCount)
+    cartPageViewModel.addToCart(updatedCartItem)
+    cartPageViewModel.getCartItems(cartItem.username)
 }
