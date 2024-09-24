@@ -24,6 +24,8 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -54,6 +56,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.PopupProperties
 import androidx.navigation.NavController
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
@@ -83,6 +86,16 @@ fun HomePage(
 
     var searchQuery by remember { mutableStateOf("") }
 
+    var isSearching by remember { mutableStateOf(false) }
+
+    val filteredFoods = remember(searchQuery, foodsList) {
+        if (searchQuery.isEmpty()) {
+            emptyList()
+        } else {
+            foodsList.filter { it.food_name.contains(searchQuery, ignoreCase = true) }
+        }
+    }
+
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
@@ -96,12 +109,36 @@ fun HomePage(
                 modifier = Modifier
                     .padding(2.dp, 5.dp),
                 title = {
-                    SearchBar(
-                        searchQuery = searchQuery,
-                        onSearchQueryChange = { searchQuery = it },
-                        modifier = Modifier
-                            .fillMaxWidth(0.9f)
-                    )
+                    Box {
+                        SearchBar(
+                            searchQuery = searchQuery,
+                            onSearchQueryChange = {
+                                searchQuery = it
+                                isSearching = it.isNotEmpty()
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth(0.9f)
+                        )
+
+                        DropdownMenu(
+                            expanded = isSearching,
+                            onDismissRequest = { isSearching = false },
+                            modifier = Modifier.fillMaxWidth(0.9f),
+                            properties = PopupProperties(focusable = false)
+                        ) {
+                            filteredFoods.forEach { food ->
+                                DropdownMenuItem(
+                                    text = { Text(food.food_name) },
+                                    onClick = {
+                                        searchQuery = food.food_name
+                                        isSearching = false
+                                        val foodJson = Gson().toJson(food)
+                                        navController.navigate("detailsPage/$foodJson")
+                                    }
+                                )
+                            }
+                        }
+                    }
                 },
                 navigationIcon = {
                     IconButton(onClick = { }) {
@@ -168,6 +205,7 @@ fun SearchBar(
     onSearchQueryChange: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+
     TextField(
         value = searchQuery,
         onValueChange = onSearchQueryChange,
