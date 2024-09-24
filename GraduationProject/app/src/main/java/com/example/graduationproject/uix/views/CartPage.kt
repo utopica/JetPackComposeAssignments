@@ -55,6 +55,7 @@ import com.example.graduationproject.ui.theme.Peach
 import com.example.graduationproject.ui.theme.PeachCard
 import com.example.graduationproject.ui.theme.PeachContainer
 import com.example.graduationproject.ui.theme.poppinsItalic
+import com.example.graduationproject.ui.theme.poppinsMedium
 import com.example.graduationproject.ui.theme.poppinsMediumBold
 import com.example.graduationproject.uix.viewmodel.CartPageViewModel
 import com.google.gson.Gson
@@ -68,8 +69,7 @@ fun CartPage(
 ) {
     val cartItems by cartPageViewModel.cartItems.collectAsState(emptyList())
     val username = "elif_okumus"
-
-
+    val totalAmount = cartItems.sumOf { it.food_price * it.cart_order_count }
 
     LaunchedEffect(key1 = true) {
         cartPageViewModel.getCartItems(username)
@@ -113,7 +113,9 @@ fun CartPage(
                             onDeleteClick = {
                                 cartPageViewModel.removeFromCart(
                                     cartItemId = item.cart_food_id,
-                                    username = username
+                                    username = username,
+                                    foodName = item.food_name,
+                                    orderCount = item.cart_order_count
                                 )
                             },
                             cartPageViewModel = cartPageViewModel,
@@ -140,10 +142,10 @@ fun CartPage(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text("Delivery Amount")
+                            Text("Delivery Amount", fontFamily = poppinsMedium)
                             Box(
                                 modifier = Modifier
-                                    .width(70.dp)
+                                    .width(100.dp)
                                     .height(30.dp)
                                     .clip(RoundedCornerShape(16.dp))
                                     .background(Color.White.copy(alpha = 0.5f))
@@ -151,7 +153,7 @@ fun CartPage(
                                     .padding(horizontal = 16.dp),
                                 contentAlignment = Alignment.Center,
                             ) {
-                                Text("$${20}")
+                                Text("$${20}.00", fontSize = 12.sp, fontFamily = poppinsMedium)
                             }
                         }
                         Spacer(modifier = Modifier.height(8.dp))
@@ -160,14 +162,15 @@ fun CartPage(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("Total Amount", fontWeight = FontWeight.Bold)
+                            Text("Total Amount", fontFamily = poppinsMedium, fontSize = 12.sp, fontWeight = FontWeight.Bold)
 
                         }
 
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                "USD ",
+                                "USD ${totalAmount + 20}.00 ",
                                 fontWeight = FontWeight.Bold,
+                                fontFamily = poppinsMediumBold,
                                 fontSize = 24.sp
                             )
                         }
@@ -193,7 +196,7 @@ fun CartPage(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("Make Payment", fontWeight = FontWeight.Bold)
+                            Text("Make Payment", fontSize = 16.sp, fontFamily = poppinsMediumBold, fontWeight = FontWeight.Bold)
                             Icon(Icons.Default.ArrowForward, contentDescription = "Make Payment")
                         }
                     }
@@ -246,6 +249,7 @@ fun CartItemRow(
             Text(
                 text = cartItem.food_name,
                 fontSize = 16.sp,
+                fontFamily = poppinsMedium,
                 color = Color.Black,
                 fontWeight = FontWeight.Bold
             )
@@ -261,7 +265,7 @@ fun CartItemRow(
                 IconButton(
                     onClick = { if (orderCount > 0) {
                         orderCount--
-                        cartPageViewModel.updateCartItemCount(cartItem, orderCount)
+                        cartPageViewModel.updateCartItemCount(cartItem, orderCount, cartItem.food_name, cartItem.cart_order_count)
                     }else{
                         onDeleteClick()
                     }
@@ -281,7 +285,7 @@ fun CartItemRow(
                 IconButton(
                     onClick = {
                         orderCount++
-                        cartPageViewModel.updateCartItemCount(cartItem, orderCount)
+                        cartPageViewModel.updateCartItemCount(cartItem, orderCount, cartItem.food_name,cartItem.cart_order_count)
                     },
                     modifier = Modifier
                         .background(Peach.copy(alpha = 0.3f), CircleShape)

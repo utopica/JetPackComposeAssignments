@@ -23,8 +23,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -47,13 +49,7 @@ import com.skydoves.landscapist.glide.GlideImage
 @Composable
 fun DetailsPage(navController: NavController, food: Foods, cartPageViewModel: CartPageViewModel) {
 
-    val orderCount = cartPageViewModel.getCartItemCount(food.food_name)
-
-    var orderCountChange = remember { mutableStateOf(0) }
-
-    var countAddClick = remember { mutableStateOf(0) }
-
-    var countDeleteClick = remember { mutableStateOf(0) }
+    var orderCount by remember { mutableStateOf(cartPageViewModel.getCartItemCount(food.food_name)) }
 
     val username = "elif_okumus"
 
@@ -137,7 +133,9 @@ fun DetailsPage(navController: NavController, food: Foods, cartPageViewModel: Ca
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(
-                        onClick = { if (orderCount > 0) countDeleteClick.value++ },
+                        onClick = { if (orderCount > 0) {
+                            orderCount--
+                        } },
                         modifier = Modifier
                             .background(Peach.copy(alpha = 0.3f), CircleShape)
                             .size(56.dp)
@@ -146,14 +144,13 @@ fun DetailsPage(navController: NavController, food: Foods, cartPageViewModel: Ca
                     }
 
                     Text(
-                        text = "${orderCount + countAddClick.value - countDeleteClick.value}",
+                        text = "$orderCount",
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold
                     )
 
                     IconButton(
-                        onClick = {
-                            countAddClick.value++ },
+                        onClick = { orderCount++ },
                         modifier = Modifier
                             .background(Peach.copy(alpha = 0.3f), CircleShape)
                             .size(56.dp)
@@ -180,15 +177,15 @@ fun DetailsPage(navController: NavController, food: Foods, cartPageViewModel: Ca
 
                     IconButton(
                         onClick = {
-
-                            orderCountChange.value = countAddClick.value - countDeleteClick.value
+                            val currentCount = cartPageViewModel.getCartItemCount(food.food_name)
+                            val changeInCount = orderCount - currentCount
 
                             val cartItem = Carts(
                                 cart_food_id = 0,
                                 food_name = food.food_name,
                                 food_picName = food.food_picName,
                                 food_price = food.food_price,
-                                cart_order_count = orderCountChange.value,
+                                cart_order_count = changeInCount,
                                 username = username
                             )
 

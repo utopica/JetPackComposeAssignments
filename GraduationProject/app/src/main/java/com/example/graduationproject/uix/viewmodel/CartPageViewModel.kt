@@ -35,19 +35,29 @@ class CartPageViewModel @Inject constructor(var foodsRepo: FoodsRepository) : Vi
         CoroutineScope(Dispatchers.Main).launch {
             _isLoading.value = true
             try {
-                val currentItems = try {
-                    foodsRepo.getCartItems(cart.username)
-                } catch (e: Exception) {
-                    emptyList()
-                }
+                val currentItems = foodsRepo.getCartItems(cart.username) ?: emptyList()
+
+                Log.e("CartPageViewModel", " ${cart.food_name} - ${cart.cart_order_count} Item is gonna be updated")
 
                 val existingItem = currentItems.find { it.food_name == cart.food_name }
 
                 if (existingItem != null) {
+
+                    Log.e("CartPageViewModel", " ${existingItem?.food_name} - ${existingItem?.cart_order_count} Item is existed")
+
                     val updatedItem = existingItem.copy(cart_order_count = existingItem.cart_order_count + cart.cart_order_count)
+
+                    updateCartItem(updatedItem)
+
+                    Log.e("CartPageViewModel", " ${updatedItem.food_name} - ${updatedItem.cart_order_count} Item is changing")
+
                     try {
-                        removeFromCart(existingItem.cart_food_id, cart.username)
+                        removeFromCart(updatedItem.cart_food_id, updatedItem.username, updatedItem.food_name, updatedItem.cart_order_count)
+
                         addNewItemToCart(updatedItem)
+
+                        Log.e("CartPageViewModel", " ${updatedItem.food_name} - ${updatedItem.cart_order_count} Item updated to cart successfully")
+
                     } catch (e: Exception) {
                         Log.e("CartPageViewModel", "Error updating existing item: ${e.message}")
                         _error.value = "Failed to update existing item: ${e.message}"
@@ -82,10 +92,27 @@ class CartPageViewModel @Inject constructor(var foodsRepo: FoodsRepository) : Vi
 
         val result = foodsRepo.addToCart(requestMap)
         if (result.success == 1) {
-            Log.d("CartPageViewModel", "Item added to cart successfully")
+            Log.e("CartPageViewModel", " ${cart.cart_food_id} - ${cart.food_name} - ${cart.cart_order_count}Item added to cart successfully")
         } else {
             Log.e("CartPageViewModel", "Failed to add item to cart: ${result.message}")
             throw Exception("Failed to add item to cart: ${result.message}")
+        }
+
+    }
+
+    private suspend fun updateCartItem(cart: Carts) {
+        val requestMap = mapOf(
+            "yemek_adi" to cart.food_name,
+            "yemek_resim_adi" to cart.food_picName,
+            "yemek_fiyat" to cart.food_price.toString(),
+            "yemek_siparis_adet" to cart.cart_order_count.toString(),
+            "kullanici_adi" to cart.username
+        )
+
+        val result = foodsRepo.addToCart(requestMap)
+
+        if (result.success != 1) {
+            throw Exception("Failed to update item: ${result.message}")
         }
     }
 
@@ -115,13 +142,13 @@ class CartPageViewModel @Inject constructor(var foodsRepo: FoodsRepository) : Vi
         }
     }
 
-    fun removeFromCart(cartItemId: Int, username: String) {
+    fun removeFromCart(cartItemId: Int, username: String, foodName: String, orderCount : Int) {
         CoroutineScope(Dispatchers.Main).launch {
-            Log.e("CartPageViewModel", "Removing item $cartItemId from cart for user: $username")
+            Log.e("CartPageViewModel", "Removing item $cartItemId - $foodName - $orderCount from cart for user: $username")
             try {
                 val result = foodsRepo.removeFromCart(cartItemId, username)
                 if (result.success == 1) {
-                    Log.e("CartPageViewModel", "Item $cartItemId removed from cart successfully")
+                    Log.e("CartPageViewModel", "Item $cartItemId $foodName removed from cart successfully")
                     getCartItems(username)
                 } else {
                     Log.e("CartPageViewModel", "Failed to remove item from cart: ${result.message}")
@@ -139,14 +166,14 @@ class CartPageViewModel @Inject constructor(var foodsRepo: FoodsRepository) : Vi
         return cartItems.value.find { it.food_name == foodName }?.cart_order_count ?: 0
     }
 
-    fun updateCartItemCount(cartItem: Carts, newCount: Int) {
+    fun updateCartItemCount(cartItem: Carts, newCount: Int, foodName: String, orderCount: Int) {
         viewModelScope.launch {
             if (newCount <= 0) {
-                removeFromCart(cartItem.cart_food_id, cartItem.username)
+                removeFromCart(cartItem.cart_food_id, cartItem.username, foodName, orderCount)
             } else {
                 val updatedItem = cartItem.copy(cart_order_count = newCount)
                 try {
-                    removeFromCart(cartItem.cart_food_id, cartItem.username)
+                    removeFromCart(cartItem.cart_food_id, cartItem.username, foodName, orderCount)
                     addNewItemToCart(updatedItem)
                     getCartItems(cartItem.username)
                 } catch (e: Exception) {

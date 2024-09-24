@@ -350,6 +350,8 @@ fun FoodItem(
 
                                 cartPageViewModel.addToCart(cartItem)
 
+                                countCartClick.value = 0
+
                                 isPlaying = true
                                 progress = 0f
 
