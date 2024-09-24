@@ -140,9 +140,10 @@ fun CartPage(
                     ) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("Delivery Amount", fontSize = 12.sp , fontFamily = poppinsMedium)
+                            Text("Delivery Amount", fontSize = 12.sp, fontFamily = poppinsMedium)
                             Box(
                                 modifier = Modifier
                                     .width(100.dp)
@@ -162,17 +163,25 @@ fun CartPage(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("Total Amount", fontFamily = poppinsMedium, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            Text(
+                                "Total Amount",
+                                fontFamily = poppinsMedium,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold
+                            )
 
                         }
 
                         Row(verticalAlignment = Alignment.CenterVertically) {
+
                             Text(
-                                "USD ${totalAmount + 20}.00 ",
+                                text = if (cartItems.isEmpty()) "USD 0.00" else "USD ${totalAmount + 20}.00 ",
                                 fontWeight = FontWeight.Bold,
                                 fontFamily = poppinsMediumBold,
                                 fontSize = 24.sp
                             )
+
+
                         }
 
 
@@ -196,7 +205,12 @@ fun CartPage(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("Make Payment", fontSize = 16.sp, fontFamily = poppinsMediumBold, fontWeight = FontWeight.Bold)
+                            Text(
+                                "Make Payment",
+                                fontSize = 16.sp,
+                                fontFamily = poppinsMediumBold,
+                                fontWeight = FontWeight.Bold
+                            )
                             Icon(Icons.Default.ArrowForward, contentDescription = "Make Payment")
                         }
                     }
@@ -246,9 +260,11 @@ fun CartItemRow(
 
         Spacer(modifier = Modifier.width(20.dp))
 
-        Column(modifier = Modifier
-            .weight(1f)
-            .padding(16.dp)) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(16.dp)
+        ) {
 
             Text(
                 text = cartItem.food_name,
@@ -268,9 +284,17 @@ fun CartItemRow(
             ) {
                 IconButton(
                     onClick = {
-                        if (orderCount > 1) orderCount--
+                        if (orderCount > 1) {
+                            orderCount--
 
-                        updateCart(cartPageViewModel, cartItem, orderCount)
+                            updateCart(cartPageViewModel, cartItem, orderCount)
+                        } else cartPageViewModel.removeFromCart(
+                            cartItem.cart_food_id,
+                            cartItem.username,
+                            cartItem.food_name,
+                            cartItem.cart_order_count
+                        )
+
 
                     },
                     modifier = Modifier

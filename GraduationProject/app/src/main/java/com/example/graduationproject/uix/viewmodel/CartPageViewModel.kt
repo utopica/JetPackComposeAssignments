@@ -83,18 +83,6 @@ class CartPageViewModel @Inject constructor(var foodsRepo: FoodsRepository) : Vi
         }
     }
 
-
-    suspend fun updateCartItem(cart: Carts) {
-        try {
-            removeFromCart(cart.cart_food_id, cart.username, cart.food_name, cart.cart_order_count)
-            addNewItemToCart(cart)
-            Log.d("CartPageViewModel", "${cart.food_name} - ${cart.cart_order_count} Item updated in cart successfully")
-        } catch (e: Exception) {
-            Log.e("CartPageViewModel", "Error updating cart item: ${e.message}")
-            throw e
-        }
-    }
-
     private suspend fun addNewItemToCart(cart: Carts) {
         val requestMap = mapOf(
             "yemek_adi" to cart.food_name,
@@ -162,17 +150,4 @@ class CartPageViewModel @Inject constructor(var foodsRepo: FoodsRepository) : Vi
         return cartItems.value.find { it.food_name == foodName }?.cart_order_count ?: 0
     }
 
-    fun increaseItemCount(cart: Carts) {
-        val updatedCart = cart.copy(cart_order_count = cart.cart_order_count + 1)
-        addToCart(updatedCart)
-    }
-
-    fun decreaseItemCount(cart: Carts) {
-        if (cart.cart_order_count > 1) {
-            val updatedCart = cart.copy(cart_order_count = cart.cart_order_count - 1)
-            addToCart(updatedCart)
-        } else {
-            removeFromCart(cart.cart_food_id, cart.username, cart.food_name, cart.cart_order_count)
-        }
-    }
 }
