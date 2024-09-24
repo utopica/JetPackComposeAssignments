@@ -11,21 +11,19 @@ import com.example.graduationproject.data.entities.AddCartItem
 import com.example.graduationproject.data.entities.Carts
 import com.example.graduationproject.data.entities.Foods
 import com.example.graduationproject.uix.viewmodel.CartPageViewModel
-import com.example.graduationproject.uix.viewmodel.DetailsPageViewModel
 import com.example.graduationproject.uix.viewmodel.HomePageViewModel
 import com.google.gson.Gson
 
 @Composable
 fun PageNavigation(
     homePageViewModel: HomePageViewModel,
-    detailsPageViewModel : DetailsPageViewModel,
     cartPageViewModel: CartPageViewModel){
 
     val navController = rememberNavController()
 
     NavHost(navController = navController, startDestination = "homepage") {
         composable("homepage"){
-            HomePage(navController, homePageViewModel, cartPageViewModel, detailsPageViewModel)
+            HomePage(navController, homePageViewModel, cartPageViewModel)
         }
 
         composable(
@@ -33,22 +31,19 @@ fun PageNavigation(
         ){
             CartPage(
                 navController = navController,
-                cartPageViewModel = cartPageViewModel,
-                detailsPageViewModel = detailsPageViewModel
+                cartPageViewModel = cartPageViewModel
             )
         }
 
         composable(
-            "detailsPage/{food}/{orderCount}",
+            "detailsPage/{food}",
             arguments = listOf(
                 navArgument("food") { type = NavType.StringType },
-                navArgument("orderCount") { type = NavType.IntType }
             )
         ){
             val json = it.arguments?.getString("food")
             val foodObject  = Gson().fromJson(json,Foods::class.java)
-            val orderCount = it.arguments?.getInt("orderCount") ?: 0
-            DetailsPage(navController = navController, food = foodObject,  orderCount = orderCount, detailsPageViewModel = detailsPageViewModel, cartPageViewModel = cartPageViewModel)
+            DetailsPage(navController = navController, food = foodObject, cartPageViewModel = cartPageViewModel)
         }
         
         composable("searchPage"){

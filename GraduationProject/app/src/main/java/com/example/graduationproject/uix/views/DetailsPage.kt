@@ -1,6 +1,5 @@
 package com.example.graduationproject.uix.views
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -37,20 +36,24 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.graduationproject.data.entities.Carts
 import com.example.graduationproject.data.entities.Foods
-import com.example.graduationproject.ui.theme.Brown
 import com.example.graduationproject.ui.theme.Peach
 import com.example.graduationproject.ui.theme.PeachContainer
 import com.example.graduationproject.ui.theme.poppinsMedium
 import com.example.graduationproject.ui.theme.poppinsMediumBold
 import com.example.graduationproject.uix.viewmodel.CartPageViewModel
-import com.example.graduationproject.uix.viewmodel.DetailsPageViewModel
 import com.skydoves.landscapist.glide.GlideImage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetailsPage(navController: NavController, food: Foods, orderCount: Int, detailsPageViewModel: DetailsPageViewModel, cartPageViewModel: CartPageViewModel) {
+fun DetailsPage(navController: NavController, food: Foods, cartPageViewModel: CartPageViewModel) {
 
-    var currentOrderCount = remember { mutableStateOf(orderCount) }
+    val orderCount = cartPageViewModel.getCartItemCount(food.food_name)
+
+    var orderCountChange = remember { mutableStateOf(0) }
+
+    var countAddClick = remember { mutableStateOf(0) }
+
+    var countDeleteClick = remember { mutableStateOf(0) }
 
     val username = "elif_okumus"
 
@@ -134,7 +137,7 @@ fun DetailsPage(navController: NavController, food: Foods, orderCount: Int, deta
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(
-                        onClick = { if (currentOrderCount.value > 1) currentOrderCount.value-- },
+                        onClick = { if (orderCount > 0) countDeleteClick.value++ },
                         modifier = Modifier
                             .background(Peach.copy(alpha = 0.3f), CircleShape)
                             .size(56.dp)
@@ -143,13 +146,14 @@ fun DetailsPage(navController: NavController, food: Foods, orderCount: Int, deta
                     }
 
                     Text(
-                        text = "${currentOrderCount.value}",
+                        text = "${orderCount + countAddClick.value - countDeleteClick.value}",
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold
                     )
 
                     IconButton(
-                        onClick = { currentOrderCount.value++ },
+                        onClick = {
+                            countAddClick.value++ },
                         modifier = Modifier
                             .background(Peach.copy(alpha = 0.3f), CircleShape)
                             .size(56.dp)
@@ -162,7 +166,7 @@ fun DetailsPage(navController: NavController, food: Foods, orderCount: Int, deta
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(80.dp)
-                        .background(Brown, RoundedCornerShape(40.dp))
+                        .background(Color.Black, RoundedCornerShape(40.dp))
                         .padding(horizontal = 24.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
@@ -177,17 +181,17 @@ fun DetailsPage(navController: NavController, food: Foods, orderCount: Int, deta
                     IconButton(
                         onClick = {
 
+                            orderCountChange.value = countAddClick.value - countDeleteClick.value
+
                             val cartItem = Carts(
                                 cart_food_id = 0,
                                 food_name = food.food_name,
                                 food_picName = food.food_picName,
                                 food_price = food.food_price,
-                                cart_order_count = currentOrderCount.value,
+                                cart_order_count = orderCountChange.value,
                                 username = username
                             )
-                            cartPageViewModel.addToCart(cartItem)
 
-                            Log.e("Details", "Cart : ${cartItem}")
                             cartPageViewModel.addToCart(cartItem)
 
                         },
@@ -198,7 +202,7 @@ fun DetailsPage(navController: NavController, food: Foods, orderCount: Int, deta
                         Icon(
                             imageVector = Icons.Default.ShoppingCart,
                             contentDescription = "Add to Cart",
-                            tint = Brown,
+                            tint = Color.Black,
                             modifier = Modifier.size(32.dp)
                         )
                     }

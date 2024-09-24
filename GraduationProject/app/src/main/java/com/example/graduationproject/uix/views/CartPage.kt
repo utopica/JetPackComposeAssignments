@@ -35,8 +35,11 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,7 +57,6 @@ import com.example.graduationproject.ui.theme.PeachContainer
 import com.example.graduationproject.ui.theme.poppinsItalic
 import com.example.graduationproject.ui.theme.poppinsMediumBold
 import com.example.graduationproject.uix.viewmodel.CartPageViewModel
-import com.example.graduationproject.uix.viewmodel.DetailsPageViewModel
 import com.google.gson.Gson
 import com.skydoves.landscapist.glide.GlideImage
 
@@ -62,11 +64,12 @@ import com.skydoves.landscapist.glide.GlideImage
 @Composable
 fun CartPage(
     navController: NavController,
-    cartPageViewModel: CartPageViewModel,
-    detailsPageViewModel: DetailsPageViewModel
+    cartPageViewModel: CartPageViewModel
 ) {
-    val cartItems by cartPageViewModel.cartItems.observeAsState(emptyList())
+    val cartItems by cartPageViewModel.cartItems.collectAsState(emptyList())
     val username = "elif_okumus"
+
+
 
     LaunchedEffect(key1 = true) {
         cartPageViewModel.getCartItems(username)
@@ -113,13 +116,10 @@ fun CartPage(
                                     username = username
                                 )
                             },
-                            onCountChange = { newCount ->
-                                cartPageViewModel.updateCartItemCount(item, newCount)
-                            },
-                            navController = navController,
-                            detailsPageViewModel = detailsPageViewModel
+                            cartPageViewModel = cartPageViewModel,
+                            navController = navController
                         )
-                       Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
                     }
 
 
@@ -179,7 +179,7 @@ fun CartPage(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                ){
+                ) {
                     Button(
                         onClick = {},
                         modifier = Modifier
@@ -208,10 +208,11 @@ fun CartPage(
 fun CartItemRow(
     cartItem: Carts,
     onDeleteClick: () -> Unit,
-    onCountChange: (Int) -> Unit,
+    cartPageViewModel: CartPageViewModel,
     navController: NavController,
-    detailsPageViewModel: DetailsPageViewModel
 ) {
+
+    var orderCount by remember { mutableStateOf(cartItem.cart_order_count) }
 
     Row(
         modifier = Modifier
@@ -225,7 +226,7 @@ fun CartItemRow(
                 )
 
                 val foodJson = Gson().toJson(food)
-                navController.navigate("detailsPage/$foodJson/${cartItem.cart_order_count}")
+                navController.navigate("detailsPage/$foodJson")
             },
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -238,9 +239,16 @@ fun CartItemRow(
 
         Spacer(modifier = Modifier.width(20.dp))
 
-        Column(modifier = Modifier.weight(1f).padding(16.dp)) {
+        Column(modifier = Modifier
+            .weight(1f)
+            .padding(16.dp)) {
 
-            Text(text = cartItem.food_name, fontSize = 16.sp, color = Color.Black, fontWeight = FontWeight.Bold)
+            Text(
+                text = cartItem.food_name,
+                fontSize = 16.sp,
+                color = Color.Black,
+                fontWeight = FontWeight.Bold
+            )
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -251,7 +259,13 @@ fun CartItemRow(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(
-                    onClick = { if (cartItem.cart_order_count > 1) onCountChange(cartItem.cart_order_count - 1) },
+                    onClick = { if (orderCount > 0) {
+                        orderCount--
+                        cartPageViewModel.updateCartItemCount(cartItem, orderCount)
+                    }else{
+                        onDeleteClick()
+                    }
+                    },
                     modifier = Modifier
                         .background(Peach.copy(alpha = 0.3f), CircleShape)
                         .size(24.dp)
@@ -260,12 +274,15 @@ fun CartItemRow(
                 }
 
                 Text(
-                    text = "${cartItem.cart_order_count}",
+                    text = "$orderCount",
                     fontWeight = FontWeight.Bold
                 )
 
                 IconButton(
-                    onClick = { onCountChange(cartItem.cart_order_count + 1) },
+                    onClick = {
+                        orderCount++
+                        cartPageViewModel.updateCartItemCount(cartItem, orderCount)
+                    },
                     modifier = Modifier
                         .background(Peach.copy(alpha = 0.3f), CircleShape)
                         .size(24.dp)
@@ -273,7 +290,6 @@ fun CartItemRow(
                     Text(text = "+", fontWeight = FontWeight.Bold, fontFamily = poppinsMediumBold)
                 }
             }
-            //Text(text = "${cartItem.cart_order_count}", color = Color.Gray)
         }
 
         Box(

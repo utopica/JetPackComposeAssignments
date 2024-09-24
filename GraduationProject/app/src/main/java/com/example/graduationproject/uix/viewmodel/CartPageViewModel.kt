@@ -13,14 +13,15 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class CartPageViewModel @Inject constructor(var foodsRepo: FoodsRepository) : ViewModel() {
 
-    private val _cartItems = MutableLiveData<List<Carts>>(emptyList())
-    val cartItems: LiveData<List<Carts>> = _cartItems
+    private val _cartItems = MutableStateFlow<List<Carts>>(emptyList())
+    val cartItems: StateFlow<List<Carts>> = _cartItems.asStateFlow()
     val username = "elif_okumus"
     private val _isLoading = MutableLiveData<Boolean>(false)
     private val _error = MutableLiveData<String?>(null)
@@ -37,9 +38,7 @@ class CartPageViewModel @Inject constructor(var foodsRepo: FoodsRepository) : Vi
                 val currentItems = try {
                     foodsRepo.getCartItems(cart.username)
                 } catch (e: Exception) {
-                    Log.e("CartPageViewModel", "Error fetching current cart items: ${e.message}")
-                    _error.value = "Failed to fetch current cart items: ${e.message}"
-                    return@launch
+                    emptyList()
                 }
 
                 val existingItem = currentItems.find { it.food_name == cart.food_name }
@@ -48,18 +47,10 @@ class CartPageViewModel @Inject constructor(var foodsRepo: FoodsRepository) : Vi
                     val updatedItem = existingItem.copy(cart_order_count = existingItem.cart_order_count + cart.cart_order_count)
                     try {
                         removeFromCart(existingItem.cart_food_id, cart.username)
-                    } catch (e: Exception) {
-                        Log.e("CartPageViewModel", "Error removing existing item: ${e.message}")
-                        _error.value = "Failed to remove existing item: ${e.message}"
-                        return@launch
-                    }
-
-                    try {
                         addNewItemToCart(updatedItem)
                     } catch (e: Exception) {
-                        Log.e("CartPageViewModel", "Error adding updated item: ${e.message}")
-                        _error.value = "Failed to add updated item: ${e.message}"
-                        return@launch
+                        Log.e("CartPageViewModel", "Error updating existing item: ${e.message}")
+                        _error.value = "Failed to update existing item: ${e.message}"
                     }
                 } else {
                     try {
@@ -67,7 +58,6 @@ class CartPageViewModel @Inject constructor(var foodsRepo: FoodsRepository) : Vi
                     } catch (e: Exception) {
                         Log.e("CartPageViewModel", "Error adding new item: ${e.message}")
                         _error.value = "Failed to add new item: ${e.message}"
-                        return@launch
                     }
                 }
 
@@ -105,17 +95,20 @@ class CartPageViewModel @Inject constructor(var foodsRepo: FoodsRepository) : Vi
             _isLoading.value = true
             _error.value = null
             try {
-                val items = foodsRepo.getCartItems(username)
+                val items = try {
+                    foodsRepo.getCartItems(username)
+                } catch (e: Exception) {
+                    Log.d("CartPageViewModel", "Cart is empty or error occurred: ${e.message}")
+                    emptyList()
+                }
                 _cartItems.value = items
                 _itemsCount.value = items.size
                 Log.d("CartPageViewModel", "Fetched ${items.size} cart items for user: $username")
-                if (items.isEmpty()) {
-                    Log.d("CartPageViewModel", "Cart is empty for user: $username")
-                }
             } catch (e: Exception) {
                 Log.e("CartPageViewModel", "Error fetching cart items: ${e.message}")
-                e.printStackTrace() // Print the full stack trace
+                e.printStackTrace()
                 _error.value = "Failed to fetch cart items: ${e.message}"
+                _cartItems.value = emptyList()
             } finally {
                 _isLoading.value = false
             }
@@ -124,11 +117,11 @@ class CartPageViewModel @Inject constructor(var foodsRepo: FoodsRepository) : Vi
 
     fun removeFromCart(cartItemId: Int, username: String) {
         CoroutineScope(Dispatchers.Main).launch {
-            Log.d("CartPageViewModel", "Removing item $cartItemId from cart for user: $username")
+            Log.e("CartPageViewModel", "Removing item $cartItemId from cart for user: $username")
             try {
                 val result = foodsRepo.removeFromCart(cartItemId, username)
                 if (result.success == 1) {
-                    Log.d("CartPageViewModel", "Item $cartItemId removed from cart successfully")
+                    Log.e("CartPageViewModel", "Item $cartItemId removed from cart successfully")
                     getCartItems(username)
                 } else {
                     Log.e("CartPageViewModel", "Failed to remove item from cart: ${result.message}")
@@ -142,22 +135,24 @@ class CartPageViewModel @Inject constructor(var foodsRepo: FoodsRepository) : Vi
         }
     }
 
+    fun getCartItemCount(foodName: String): Int {
+        return cartItems.value.find { it.food_name == foodName }?.cart_order_count ?: 0
+    }
+
     fun updateCartItemCount(cartItem: Carts, newCount: Int) {
         viewModelScope.launch {
-            _isLoading.value = true
-            _error.value = null
-            try {
+            if (newCount <= 0) {
                 removeFromCart(cartItem.cart_food_id, cartItem.username)
-
+            } else {
                 val updatedItem = cartItem.copy(cart_order_count = newCount)
-                addToCart(updatedItem)
-
-                getCartItems(cartItem.username)
-            } catch (e: Exception) {
-                Log.e("CartPageViewModel", "Error updating cart item count: ${e.message}")
-                _error.value = "Failed to update cart item count: ${e.message}"
-            } finally {
-                _isLoading.value = false
+                try {
+                    removeFromCart(cartItem.cart_food_id, cartItem.username)
+                    addNewItemToCart(updatedItem)
+                    getCartItems(cartItem.username)
+                } catch (e: Exception) {
+                    Log.e("CartPageViewModel", "Error updating cart item count: ${e.message}")
+                    _error.value = "Failed to update cart item count: ${e.message}"
+                }
             }
         }
     }

@@ -14,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.graduationproject.ui.theme.GraduationProjectTheme
 import com.example.graduationproject.uix.viewmodel.CartPageViewModel
-import com.example.graduationproject.uix.viewmodel.DetailsPageViewModel
 import com.example.graduationproject.uix.viewmodel.HomePageViewModel
 import com.example.graduationproject.uix.views.PageNavigation
 import dagger.hilt.android.AndroidEntryPoint
@@ -22,7 +21,6 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     val homePageViewModel: HomePageViewModel by viewModels()
-    val detailsPageViewModel : DetailsPageViewModel by viewModels()
     val cartPageViewModel: CartPageViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,7 +28,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             GraduationProjectTheme {
-                PageNavigation(homePageViewModel, detailsPageViewModel, cartPageViewModel)
+                PageNavigation(homePageViewModel, cartPageViewModel)
             }
         }
     }

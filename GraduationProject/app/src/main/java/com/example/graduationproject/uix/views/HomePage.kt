@@ -3,10 +3,8 @@ package com.example.graduationproject.uix.views
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -65,10 +63,8 @@ import com.example.graduationproject.data.entities.Carts
 import com.example.graduationproject.data.entities.Foods
 import com.example.graduationproject.ui.theme.Orange
 import com.example.graduationproject.ui.theme.PeachContainer
-import com.example.graduationproject.ui.theme.PeachSearch
 import com.example.graduationproject.ui.theme.poppinsMedium
 import com.example.graduationproject.uix.viewmodel.CartPageViewModel
-import com.example.graduationproject.uix.viewmodel.DetailsPageViewModel
 import com.example.graduationproject.uix.viewmodel.HomePageViewModel
 import com.google.gson.Gson
 import com.skydoves.landscapist.glide.GlideImage
@@ -81,7 +77,6 @@ fun HomePage(
     navController: NavController,
     homePageViewModel: HomePageViewModel,
     cartPageViewModel: CartPageViewModel,
-    detailsPageViewModel: DetailsPageViewModel
 ) {
 
     val foodsList by homePageViewModel.foodsList.observeAsState(listOf())
@@ -155,9 +150,7 @@ fun HomePage(
             item {
                 RecommendedSection(
                     foodsList = foodsList,
-                    homePageViewModel = homePageViewModel,
                     cartPageViewModel = cartPageViewModel,
-                    detailsPageViewModel = detailsPageViewModel,
                     navController = navController,
                     snackbarHostState = snackbarHostState,
                     scope = scope
@@ -234,9 +227,7 @@ fun DiscountCard() {
 @Composable
 fun RecommendedSection(
     foodsList: List<Foods>,
-    homePageViewModel: HomePageViewModel,
     cartPageViewModel: CartPageViewModel,
-    detailsPageViewModel: DetailsPageViewModel,
     navController: NavController,
     snackbarHostState: SnackbarHostState,
     scope: CoroutineScope
@@ -256,9 +247,7 @@ fun RecommendedSection(
                 items(foodsList.size) { index ->
                     FoodItem(
                         food = foodsList[index],
-                        homePageViewModel = homePageViewModel,
                         cartPageViewModel = cartPageViewModel,
-                        detailsPageViewModel = detailsPageViewModel,
                         navController = navController,
                         snackbarHostState = snackbarHostState,
                         scope = scope
@@ -273,9 +262,7 @@ fun RecommendedSection(
 @Composable
 fun FoodItem(
     food: Foods,
-    homePageViewModel: HomePageViewModel,
     cartPageViewModel: CartPageViewModel,
-    detailsPageViewModel: DetailsPageViewModel,
     navController: NavController,
     snackbarHostState: SnackbarHostState,
     scope: CoroutineScope
@@ -288,7 +275,7 @@ fun FoodItem(
 
     var progress by remember { mutableStateOf(0f) }
 
-    var orderCount = remember { mutableStateOf(0) }
+    var countCartClick = remember { mutableStateOf(0) }
 
     val username = "elif_okumus"
 
@@ -298,8 +285,7 @@ fun FoodItem(
             .aspectRatio(0.7f)
             .clickable {
                 val foodJson = Gson().toJson(food)
-                detailsPageViewModel.orderCount = orderCount.value
-                navController.navigate("detailsPage/$foodJson/${orderCount.value}")
+                navController.navigate("detailsPage/$foodJson")
             },
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(containerColor = Color.White)
@@ -311,15 +297,7 @@ fun FoodItem(
             verticalArrangement = Arrangement.spacedBy(2.dp),
 
             ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (orderCount.value > 0) {
-                    Text(text = "${orderCount.value}", fontFamily = poppinsMedium, fontSize = 20.sp)
-                }
-            }
+
             GlideImage(
                 imageModel = "http://kasimadalan.pe.hu/yemekler/resimler/${food.food_picName}",
                 modifier = Modifier
@@ -359,14 +337,14 @@ fun FoodItem(
                         modifier = Modifier
                             .size(50.dp)
                             .clickable {
-                                orderCount.value += 1
+                                countCartClick.value += 1
 
                                 val cartItem = Carts(
                                     cart_food_id = 0,
                                     food_name = food.food_name,
                                     food_picName = food.food_picName,
                                     food_price = food.food_price,
-                                    cart_order_count = orderCount.value,
+                                    cart_order_count = countCartClick.value,
                                     username = username
                                 )
 
