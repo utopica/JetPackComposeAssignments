@@ -3,6 +3,7 @@ package com.example.graduationproject.uix.views
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -29,7 +31,6 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.Scaffold
@@ -52,6 +53,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -112,18 +114,22 @@ fun HomePage(
                     Box {
                         SearchBar(
                             searchQuery = searchQuery,
-                            onSearchQueryChange = {
-                                searchQuery = it
-                                isSearching = it.isNotEmpty()
+                            onSearchQueryChange = { searchQuery = it },
+                            filteredFoods = filteredFoods,
+                            onFoodSelected = { food ->
+                                searchQuery = food.food_name
+                                val foodJson = Gson().toJson(food)
+                                navController.navigate("detailsPage/$foodJson")
                             },
                             modifier = Modifier
-                                .fillMaxWidth(0.9f)
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
                         )
 
                         DropdownMenu(
                             expanded = isSearching,
                             onDismissRequest = { isSearching = false },
-                            modifier = Modifier.fillMaxWidth(0.9f),
+                            modifier = Modifier.fillMaxWidth(1f),
                             properties = PopupProperties(focusable = false)
                         ) {
                             filteredFoods.forEach { food ->
@@ -203,29 +209,105 @@ fun HomePage(
 fun SearchBar(
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
+    filteredFoods: List<Foods>,
+    onFoodSelected: (Foods) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var isExpanded by remember { mutableStateOf(false) }
 
-    TextField(
-        value = searchQuery,
-        onValueChange = onSearchQueryChange,
-        modifier = modifier
-            .height(40.dp)
-            .border(width = 1.dp, color = Color.Gray, shape = RoundedCornerShape(16.dp))
-            .padding(vertical = 0.dp),
-        colors = TextFieldDefaults.textFieldColors(
-            containerColor = PeachContainer,
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-        ),
-        placeholder = { },
-        leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
-        singleLine = true,
-        shape = MaterialTheme.shapes.medium,
-        textStyle = LocalTextStyle.current.copy(
-            color = Color.Black,
-            fontSize = 5.sp
+    Box(modifier = modifier.fillMaxWidth(),
+        contentAlignment = Alignment.Center) {
+        TextField(
+            value = searchQuery,
+            onValueChange = {
+                onSearchQueryChange(it)
+                isExpanded = it.isNotEmpty()
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp)
+                .border(width = 1.dp, color = Color.Gray, shape = RoundedCornerShape(16.dp)),
+            colors = TextFieldDefaults.textFieldColors(
+                containerColor = PeachContainer,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                cursorColor = MaterialTheme.colorScheme.primary
+            ),
+            placeholder = { Text("Search", color = Color.Gray) },
+            leadingIcon = {
+                Icon(
+                    Icons.Default.Search,
+                    contentDescription = "Search",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            },
+            singleLine = true,
+            textStyle = TextStyle(fontSize = 16.sp),
+            shape = RoundedCornerShape(28.dp)
         )
+
+        DropdownMenu(
+            expanded = isExpanded,
+            onDismissRequest = { isExpanded = false },
+            modifier = Modifier
+                .fillMaxWidth(0.65f)
+                .heightIn(max = 320.dp)
+                .background(Color.White, RoundedCornerShape(16.dp)),
+            properties = PopupProperties(focusable = false)
+        ) {
+            filteredFoods.forEach { food ->
+                SearchDropdownItem(
+                    food = food,
+                    onClick = {
+                        onFoodSelected(food)
+                        isExpanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun SearchDropdownItem(
+    food: Foods,
+    onClick: () -> Unit
+) {
+    DropdownMenuItem(
+        text = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                GlideImage(
+                    imageModel = "http://kasimadalan.pe.hu/yemekler/resimler/${food.food_picName}",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(60.dp)
+                )
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 16.dp)
+                ) {
+                    Text(
+                        text = food.food_name,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.Black
+                    )
+                    Text(
+                        text = "$${food.food_price}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Gray
+                    )
+                }
+            }
+        },
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth()
     )
 }
 
