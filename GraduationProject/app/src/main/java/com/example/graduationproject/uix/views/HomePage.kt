@@ -69,6 +69,8 @@ import com.example.graduationproject.data.entities.Foods
 import com.example.graduationproject.ui.theme.Orange
 import com.example.graduationproject.ui.theme.PeachContainer
 import com.example.graduationproject.ui.theme.poppinsMedium
+import com.example.graduationproject.uix.viewmodel.AuthState
+import com.example.graduationproject.uix.viewmodel.AuthViewModel
 import com.example.graduationproject.uix.viewmodel.CartPageViewModel
 import com.example.graduationproject.uix.viewmodel.HomePageViewModel
 import com.google.gson.Gson
@@ -82,6 +84,7 @@ fun HomePage(
     navController: NavController,
     homePageViewModel: HomePageViewModel,
     cartPageViewModel: CartPageViewModel,
+    authViewModel: AuthViewModel
 ) {
 
     val foodsList by homePageViewModel.foodsList.observeAsState(listOf())
@@ -100,6 +103,15 @@ fun HomePage(
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+
+    val authState = authViewModel.authState.observeAsState()
+
+    LaunchedEffect(authState.value) {
+        when(authState.value){
+            is AuthState.Unauthenticated -> navController.navigate("login")
+            else -> Unit
+        }
+    }
 
     LaunchedEffect(key1 = true) {
         homePageViewModel.getFoods()

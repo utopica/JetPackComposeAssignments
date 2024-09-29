@@ -10,6 +10,7 @@ import androidx.navigation.navArgument
 import com.example.graduationproject.data.entities.AddCartItem
 import com.example.graduationproject.data.entities.Carts
 import com.example.graduationproject.data.entities.Foods
+import com.example.graduationproject.uix.viewmodel.AuthViewModel
 import com.example.graduationproject.uix.viewmodel.CartPageViewModel
 import com.example.graduationproject.uix.viewmodel.HomePageViewModel
 import com.google.gson.Gson
@@ -17,13 +18,23 @@ import com.google.gson.Gson
 @Composable
 fun PageNavigation(
     homePageViewModel: HomePageViewModel,
-    cartPageViewModel: CartPageViewModel){
+    cartPageViewModel: CartPageViewModel,
+    authViewModel: AuthViewModel){
 
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = "homepage") {
+    NavHost(navController = navController, startDestination = "login") {
+
+        composable("login"){
+            LoginPage(navController = navController, authViewModel = authViewModel)
+        }
+
+        composable("signup"){
+            SignUpPage(navController = navController, authViewModel = authViewModel)
+        }
+
         composable("homepage"){
-            HomePage(navController, homePageViewModel, cartPageViewModel)
+            HomePage(navController = navController, homePageViewModel =  homePageViewModel, cartPageViewModel = cartPageViewModel, authViewModel = authViewModel)
         }
 
         composable(
@@ -51,7 +62,7 @@ fun PageNavigation(
         }
 
         composable("profilePage"){
-            ProfilePage(navController = navController)
+            ProfilePage(navController = navController, authViewModel = authViewModel)
         }
     }
 }
