@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.graduationproject.ui.theme.GraduationProjectTheme
+import com.example.graduationproject.uix.viewmodel.AuthViewModel
 import com.example.graduationproject.uix.viewmodel.CartPageViewModel
 import com.example.graduationproject.uix.viewmodel.HomePageViewModel
 import com.example.graduationproject.uix.views.PageNavigation
@@ -22,13 +23,14 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     val homePageViewModel: HomePageViewModel by viewModels()
     val cartPageViewModel: CartPageViewModel by viewModels()
+    val authViewModel : AuthViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             GraduationProjectTheme {
-                PageNavigation(homePageViewModel, cartPageViewModel)
+                PageNavigation(homePageViewModel, cartPageViewModel, authViewModel)
             }
         }
     }
