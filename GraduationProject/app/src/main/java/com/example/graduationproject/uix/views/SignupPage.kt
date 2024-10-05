@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
@@ -26,9 +27,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.graduationproject.ui.theme.Orange
 import com.example.graduationproject.ui.theme.PeachContainer
+import com.example.graduationproject.ui.theme.poppinsMedium
 import com.example.graduationproject.uix.viewmodel.AuthState
 import com.example.graduationproject.uix.viewmodel.AuthViewModel
 
@@ -39,8 +44,10 @@ fun SignUpPage(navController: NavController, authViewModel: AuthViewModel) {
     var password by remember { mutableStateOf("") }
     val authState = authViewModel.authState.observeAsState()
     val context = LocalContext.current
+    var isPasswordVisible by remember { mutableStateOf(false) }
 
-    LaunchedEffect(authState.value){
+
+    LaunchedEffect(authState.value) {
         when (authState.value) {
             is AuthState.Authenticated -> navController.navigate("homepage")
             is AuthState.Error -> Toast.makeText(
@@ -48,16 +55,11 @@ fun SignUpPage(navController: NavController, authViewModel: AuthViewModel) {
                 (authState.value as AuthState.Error).message,
                 Toast.LENGTH_SHORT
             ).show()
+
             else -> Unit
         }
     }
     Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(text = "Sign Up") },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
-            )
-        },
         containerColor = PeachContainer
     ) { paddingValues ->
         Column(
@@ -68,32 +70,43 @@ fun SignUpPage(navController: NavController, authViewModel: AuthViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Text(text = "Sign Up", fontFamily = poppinsMedium, fontSize = 24.sp)
 
-            OutlinedTextField(
+            Spacer(modifier = Modifier.height(32.dp))
+
+            UnderlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                label = { Text(text = "Email") }
-
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text(text = "Password") }
+                label = "Email",
+                keyboardType = KeyboardType.Email
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Button(onClick = {
-                authViewModel.signup(email, password)
-            }, enabled = authState.value != AuthState.Loading) {
+            UnderlinedTextField(
+                value = password,
+                onValueChange = { password = it },
+                label = "Password",
+                keyboardType = KeyboardType.Password,
+                isPasswordVisible = isPasswordVisible,
+                onVisibilityChange = { isPasswordVisible = it }
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Button(
+                onClick = {
+                    authViewModel.signup(email, password)
+                },
+                enabled = authState.value != AuthState.Loading,
+                modifier = Modifier
+                    .height(50.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Orange)
+            ) {
                 Text(text = "Create Account")
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             TextButton(onClick = {
                 navController.navigate("login")

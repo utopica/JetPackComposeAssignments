@@ -16,3 +16,5 @@ val Peach = Color(0xFFFBB173)
 val Brown = Color(0xFF331600)
 val PeachCard = Color(0xFFFFE0B2)
 val PeachSearch = Color(0xFFfce7d4)
+
+val Unknown = Color(0xFFFF4B7B)
